@@ -1,0 +1,14 @@
+{
+    "name": "peridot-php/peridot-concurrency",
+    "description": "Concurrent spec runner for the peridot bdd framework",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Brian Scaturro",
+            "email": "scaturrob@gmail.com"
+        }
+    ],
+    "require": {
+        "peridot-php/peridot": "~1.9"
+    }
+}
