@@ -9,6 +9,6 @@
         }
     ],
     "require": {
-        "peridot-php/peridot": "~1.9"
+        "peridot-php/peridot": "~1.10"
     }
 }
