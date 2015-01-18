@@ -2,6 +2,8 @@
 namespace Peridot\Concurrency;
 
 use Peridot\Console\Environment;
+use Peridot\Console\Command;
+use Peridot\Configuration;
 use Evenement\EventEmitterInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,6 +28,7 @@ class ConcurrencyPlugin
         $this->emitter = $emitter;
         $this->emitter->on('peridot.start', [$this, 'onPeridotStart']);
         $this->emitter->on('peridot.execute', [$this, 'onPeridotExecute']);
+        $this->emitter->on('peridot.load', [$this, 'onPeridotLoad']);
     }
 
     /**
@@ -47,6 +50,22 @@ class ConcurrencyPlugin
     public function onPeridotExecute(InputInterface $input)
     {
         $this->input = $input;
+    }
+
+    /**
+     * Configures peridot to use Peridot\Concurrency\SuiteLoader
+     * if the concurrent option is set.
+     *
+     * @return void
+     */
+    public function onPeridotLoad(Command $command, Configuration $configuration)
+    {
+        $input = $this->getInput();
+        if (! $input->getOption('concurrent')) {
+            return;
+        }
+        $loader = new SuiteLoader($configuration->getGrep(), $this->emitter);
+        $command->setLoader($loader);
     }
 
     /**
