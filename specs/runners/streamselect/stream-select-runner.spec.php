@@ -18,4 +18,20 @@ describe('StreamSelectRunner', function () {
             expect($this->runner->getPending())->to->equal(3);
         });
     });
+
+    describe('->attach()', function () {
+        beforeEach(function () {
+            $interface = 'Peridot\Concurrency\Runner\StreamSelect\WorkerInterface';
+            $this->worker = $this->getProphet()->prophesize($interface);
+        });
+
+        afterEach(function () {
+            $this->getProphet()->checkPredictions();
+        });
+
+        it('should start the attached worker', function () {
+            $this->runner->attach($this->worker->reveal());
+            $this->worker->start()->shouldBeCalled();
+        });
+    });
 });

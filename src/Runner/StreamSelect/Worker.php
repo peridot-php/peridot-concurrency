@@ -4,7 +4,7 @@ namespace Peridot\Concurrency\Runner\StreamSelect;
 use Peridot\Core\HasEventEmitterTrait;
 use Evenement\EventEmitterInterface;
 
-class Worker
+class Worker implements WorkerInterface
 {
     use HasEventEmitterTrait;
 
@@ -14,6 +14,28 @@ class Worker
     protected $executable;
 
     /**
+     * @var resource
+     */
+    protected $process;
+
+    /**
+     * @var array
+     */
+    private $pipes = [];
+
+    /**
+     * Descriptor for proc_open. Defines
+     * 0 => readable STDIN
+     * 1 => writeable STDOUT
+     * 2 => writeable STDERR
+     */
+    private static $descriptorspec = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w']
+    ];
+
+    /**
      * @param string $executable a string to execute via proc_open
      * @param EventEmitterInterface $eventEmitter
      */
@@ -21,5 +43,54 @@ class Worker
     {
         $this->executable = $executable;
         $this->eventEmitter = $emitter;
+    }
+
+    /**
+     * Start the worker process.
+     *
+     * @return void
+     */
+    public function start()
+    {
+        $pipes = [];
+        $this->process = proc_open($this->executable, self::$descriptorspec, $pipes);
+
+        // make output and error streams non-blocking streams
+        stream_set_blocking($pipes[1], 0);
+        stream_set_blocking($pipes[2], 0);
+
+        $this->pipes = $pipes;
+    }
+
+    /**
+     * Return the stream that the process receives input on.
+     *
+     * @return resource
+     */
+    public function getInputStream()
+    {
+        return $this->pipes[0];
+    }
+
+    /**
+     * Return the stream that the process writes to. Returns
+     * the stream as a non-blocking resource.
+     *
+     * @return resource
+     */
+    public function getOutputStream()
+    {
+        return $this->pipes[1];
+    }
+
+    /**
+     * Return the stream that the process writes errors to. Returns
+     * the stream as a non-blocking resource.
+     *
+     * @return resource
+     */
+    public function getErrorStream()
+    {
+        return $this->pipes[2];
     }
 }

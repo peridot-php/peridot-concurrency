@@ -12,7 +12,8 @@
         "peridot-php/peridot": "~1.10"
     },
     "require-dev": {
-        "peridot-php/leo": "~1.0"
+        "peridot-php/leo": "~1.0",
+        "peridot-php/peridot-prophecy-plugin": "~1.1"
     },
     "autoload": {
         "psr-4": {

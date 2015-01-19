@@ -31,6 +31,11 @@ class StreamSelectRunner implements RunnerInterface
     protected $pending = 0;
 
     /**
+     * @var array
+     */
+    protected $workers = [];
+
+    /**
      * @param Configuration $config
      * @param EventEmitterInterface $emitter
      */
@@ -50,6 +55,18 @@ class StreamSelectRunner implements RunnerInterface
     public function run(TestResult $result)
     {
 
+    }
+
+    /**
+     * Attach a worker to the StreamSelectRunner and start
+     * it.
+     *
+     * @return void
+     */
+    public function attach(WorkerInterface $worker)
+    {
+        $this->workers[] = $worker;
+        $worker->start();
     }
 
     /**
