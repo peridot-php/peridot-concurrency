@@ -1,6 +1,12 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect;
 
+/**
+ * A WorkerInterface defines the contract for a worker designed
+ * to start and manage a single process.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect
+ */
 interface WorkerInterface
 {
     /**

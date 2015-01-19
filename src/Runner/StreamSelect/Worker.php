@@ -4,6 +4,11 @@ namespace Peridot\Concurrency\Runner\StreamSelect;
 use Peridot\Core\HasEventEmitterTrait;
 use Evenement\EventEmitterInterface;
 
+/**
+ * A Worker opens and manages a single process.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect
+ */
 class Worker implements WorkerInterface
 {
     use HasEventEmitterTrait;
@@ -46,7 +51,7 @@ class Worker implements WorkerInterface
     }
 
     /**
-     * Start the worker process.
+     * {@inheritdoc}
      *
      * @return void
      */
@@ -63,7 +68,7 @@ class Worker implements WorkerInterface
     }
 
     /**
-     * Return the stream that the process receives input on.
+     * {@inheritdoc}
      *
      * @return resource
      */
@@ -73,8 +78,7 @@ class Worker implements WorkerInterface
     }
 
     /**
-     * Return the stream that the process writes to. Returns
-     * the stream as a non-blocking resource.
+     * {@inheritdoc}
      *
      * @return resource
      */
@@ -84,8 +88,7 @@ class Worker implements WorkerInterface
     }
 
     /**
-     * Return the stream that the process writes errors to. Returns
-     * the stream as a non-blocking resource.
+     * {@inheritdoc}
      *
      * @return resource
      */
