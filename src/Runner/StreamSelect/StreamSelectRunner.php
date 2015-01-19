@@ -13,7 +13,7 @@ use Evenement\EventEmitterInterface;
  *
  * @package Peridot\Concurrency\Runner\StreamSelect
  */
-class StreamSelectRunner implments RunnerInterface
+class StreamSelectRunner implements RunnerInterface
 {
     /**
      * @var Configuration
@@ -24,6 +24,11 @@ class StreamSelectRunner implments RunnerInterface
      * @var EventEmitterInterface
      */
     protected $emitter;
+
+    /**
+     * @var int
+     */
+    protected $pending = 0;
 
     /**
      * @param Configuration $config
@@ -48,6 +53,27 @@ class StreamSelectRunner implments RunnerInterface
     }
 
     /**
+     * Set the number of pending tests.
+     *
+     * @param int $pending
+     * @return void
+     */
+    public function setPending($pending)
+    {
+        $this->pending = $pending;
+    }
+
+    /**
+     * Get the number of pending tests.
+     *
+     * @return int
+     */
+    public function getPending()
+    {
+        return $this->pending;
+    }
+
+    /**
      * Send a suite path to the test runner.
      *
      * @param string $suitePath
@@ -64,6 +90,7 @@ class StreamSelectRunner implments RunnerInterface
      */
     protected function listen()
     {
+        $this->emitter->on('peridot.concurrency.loadstart', [$this, 'setPending']);
         $this->emitter->on('peridot.concurrency.suiteloading', [$this, 'onSuiteLoading']);
     }
 }

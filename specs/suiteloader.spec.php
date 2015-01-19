@@ -6,16 +6,26 @@ describe('SuiteLoader', function () {
     $this->fixtures = __DIR__ . '/../fixtures/suiteloader';
 
     describe('->load()', function () {
+        beforeEach(function () {
+            $this->emitter = new EventEmitter();
+            $this->loader = new SuiteLoader('*.spec.php', $this->emitter);
+        });
+
+        it('should fire an event before loading that passes a total count', function () {
+            $count = 0;
+            $this->emitter->on('peridot.concurrency.loadstart', function ($total) use (&$count) {
+                $count = $total;
+            });
+            $this->loader->load($this->fixtures);
+            expect($count)->to->equal(3);
+        });
+
         it('should fire an event for each file', function() {
-            $emitter = new EventEmitter();
             $paths = [];
-            $emitter->on('peridot.concurrency.suiteloading', function ($path) use (&$paths) {
+            $this->emitter->on('peridot.concurrency.suiteloading', function ($path) use (&$paths) {
                 $paths[] = $path;
             });
-
-            $loader = new SuiteLoader('*.spec.php', $emitter);
-            $loader->load($this->fixtures);
-
+            $this->loader->load($this->fixtures);
             expect($paths)->to->have->length(3)->and->to->satisfy(function($paths) { 
                 return sizeof(array_filter($paths, 'file_exists')) === 3;
             });
