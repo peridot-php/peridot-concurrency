@@ -2,14 +2,15 @@
 namespace Peridot\Concurrency\Runner\StreamSelect;
 
 /**
- * Defines an invokable object for opening a process.
+ * Defines an invokable object for opening a resource that
+ * sets readable and writeable streams.
  *
  * @package Peridot\Concurrency\Runner\StreamSelect
  */
-interface ProcessOpenerInterface
+interface ResourceOpenInterface
 {
     /**
-     * Open a process.
+     * Open a resource.
      *
      * @param string $executable
      * @param array $descriptor

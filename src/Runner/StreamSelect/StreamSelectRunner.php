@@ -36,13 +36,23 @@ class StreamSelectRunner implements RunnerInterface
     protected $workers = [];
 
     /**
+     * @var ResourceOpenInterface
+     */
+    protected $resourceOpen;
+
+    /**
      * @param Configuration $config
      * @param EventEmitterInterface $emitter
      */
-    public function __construct(Configuration $config, EventEmitterInterface $emitter)
+    public function __construct(
+        Configuration $config,
+        EventEmitterInterface $emitter,
+        ResourceOpenInterface $resourceOpen = null
+    )
     {
         $this->config = $config;
         $this->emitter = $emitter;
+        $this->resourceOpen = $resourceOpen ?: new ProcOpen();
         $this->listen();
     }
 
@@ -76,6 +86,21 @@ class StreamSelectRunner implements RunnerInterface
         }
 
         return true;
+    }
+
+    /**
+     * Start worker processes.
+     *
+     * @return void 
+     */
+    public function startWorkers()
+    {
+        $processes = $this->config->getProcesses();
+        for ($i = 0; $i < $processes; $i++) {
+            $exec = __DIR__ . '/select-runner.php';
+            $worker = new Worker("php $exec", $this->eventEmitter, $this->resourceOpen);
+            $this->attach($worker);
+        }
     }
 
     /**

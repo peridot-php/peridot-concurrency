@@ -6,7 +6,7 @@ namespace Peridot\Concurrency\Runner\StreamSelect;
  *
  * @package Peridot\Concurrency\Runner\StreamSelect
  */
-class ProcOpen implements ProcessOpenerInterface
+class ProcOpen implements ResourceOpenInterface
 {
     /**
      * {@inheritdoc}

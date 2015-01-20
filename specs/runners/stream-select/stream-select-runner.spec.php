@@ -1,5 +1,6 @@
 <?php
 use Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner;
+use Peridot\Concurrency\Runner\StreamSelect\TmpfileOpen;
 use Peridot\Concurrency\Configuration;
 use Peridot\Configuration as CoreConfig;
 use Evenement\EventEmitter;
@@ -10,7 +11,9 @@ describe('StreamSelectRunner', function () {
         $this->configuration = new Configuration($core);
         $this->configuration->setProcesses(2);
         $this->emitter = new EventEmitter();
-        $this->runner = new StreamSelectRunner($this->configuration, $this->emitter);
+
+        $open = new TmpfileOpen();
+        $this->runner = new StreamSelectRunner($this->configuration, $this->emitter, $open);
     });
 
     context('when peridot.concurrency.loadstart event is emitted', function () {
@@ -62,7 +65,20 @@ describe('StreamSelectRunner', function () {
 
     describe('->startWorkers()', function () {
         it('should attach workers for the number of processes', function () {
-            
+            $this->runner->startWorkers();
+            $processes = $this->configuration->getProcesses();
+            expect($this->runner->getWorkers())->to->have->length($processes);
+        });
+
+        context('when workers are already attached', function () {
+            it('should not add additional workers', function () {
+                $interface = 'Peridot\Concurrency\Runner\StreamSelect\WorkerInterface';
+                $worker = $this->getProphet()->prophesize($interface);
+                $this->runner->attach($worker->reveal());
+                $this->runner->startWorkers();
+                $processes = $this->configuration->getProcesses();
+                expect($this->runner->getWorkers())->to->have->length($processes);
+            });
         });
     });
 });

@@ -62,7 +62,7 @@ class Worker implements WorkerInterface
     public function __construct(
         $executable,
         EventEmitterInterface $eventEmitter,
-        ProcessOpenerInterface $opener = null
+        ResourceOpenInterface $opener = null
     )
     {
         $this->executable = $executable;
