@@ -59,7 +59,7 @@ class StreamSelectRunner implements RunnerInterface
 
     /**
      * Attach a worker to the StreamSelectRunner and start
-     * it.
+     * it if it is not already started.
      *
      * @return bool
      */
@@ -107,6 +107,16 @@ class StreamSelectRunner implements RunnerInterface
      */
     public function onSuiteLoading($suitePath)
     {
+    }
+
+    /**
+     * Get all workers attached to the runner.
+     *
+     * @return array
+     */
+    public function getWorkers()
+    {
+        return $this->workers;
     }
 
     /**

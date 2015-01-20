@@ -39,6 +39,11 @@ class Worker implements WorkerInterface
     private $pipes = [];
 
     /**
+     * @var Peridot\Concurrency\Runner\StreamSelect\ProcessOpenerInterface
+     */
+    private $processOpener;
+
+    /**
      * Descriptor for proc_open. Defines
      * 0 => readable STDIN
      * 1 => writeable STDOUT
@@ -54,10 +59,15 @@ class Worker implements WorkerInterface
      * @param string $executable a string to execute via proc_open
      * @param EventEmitterInterface $eventEmitter
      */
-    public function __construct($executable, EventEmitterInterface $eventEmitter)
+    public function __construct(
+        $executable,
+        EventEmitterInterface $eventEmitter,
+        ProcessOpenerInterface $opener = null
+    )
     {
         $this->executable = $executable;
         $this->eventEmitter = $emitter;
+        $this->processOpener = $opener ?: new ProcOpen();
     }
 
     /**
@@ -68,7 +78,11 @@ class Worker implements WorkerInterface
     public function start()
     {
         $pipes = [];
-        $this->process = proc_open($this->executable, self::$descriptorspec, $pipes);
+
+        $this->process = call_user_func_array(
+            $this->processOpener,
+            [$this->executable, self::$descriptorspec, $pipes]
+        );
 
         // make output and error streams non-blocking streams
         stream_set_blocking($pipes[1], 0);

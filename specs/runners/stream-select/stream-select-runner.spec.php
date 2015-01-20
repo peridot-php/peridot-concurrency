@@ -59,4 +59,10 @@ describe('StreamSelectRunner', function () {
             expect($attached)->to->be->false();
         });
     });
+
+    describe('->startWorkers()', function () {
+        it('should attach workers for the number of processes', function () {
+            
+        });
+    });
 });
