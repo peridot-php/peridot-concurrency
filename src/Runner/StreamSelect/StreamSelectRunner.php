@@ -61,12 +61,16 @@ class StreamSelectRunner implements RunnerInterface
      * Attach a worker to the StreamSelectRunner and start
      * it.
      *
-     * @return void
+     * @return bool
      */
     public function attach(WorkerInterface $worker)
     {
+        if (sizeof($this->workers) === $this->config->getProcesses()) {
+            return false;
+        }
         $this->workers[] = $worker;
         $worker->start();
+        return true;
     }
 
     /**

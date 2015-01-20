@@ -24,6 +24,16 @@ class Worker implements WorkerInterface
     protected $process;
 
     /**
+     * @var bool
+     */
+    protected $running = false;
+
+    /**
+     * @var bool
+     */
+    protected $started = false;
+
+    /**
      * @var array
      */
     private $pipes = [];
@@ -65,6 +75,40 @@ class Worker implements WorkerInterface
         stream_set_blocking($pipes[2], 0);
 
         $this->pipes = $pipes;
+        $this->started = true;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @retun bool
+     */
+    public function isStarted()
+    {
+        return $this->started;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param string $testPath
+     * @return void
+     */
+    public function run($testPath)
+    {
+        $data = $testPath . "\n";
+        fwrite($this->getInputStream(), $data);
+        $this->isRunning = true;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return bool
+     */
+    public function isRunning()
+    {
+        return $this->running;
     }
 
     /**

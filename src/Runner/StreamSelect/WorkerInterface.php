@@ -38,4 +38,28 @@ interface WorkerInterface
      * @return resource
      */
     public function getErrorStream();
+
+    /**
+     * Run the given test path against the worker process.
+     *
+     * @param string $testPath
+     * @return void
+     */
+    public function run($testPath);
+
+    /**
+     * Returns whether or not the worker is currently
+     * running a test.
+     *
+     * @return bool
+     */
+    public function isRunning();
+
+    /**
+     * Returns whether or not the worker has started
+     * a process.
+     *
+     * @return bool
+     */
+    public function isStarted();
 }

@@ -8,6 +8,7 @@ describe('StreamSelectRunner', function () {
     beforeEach(function () {
         $core = new CoreConfig();
         $this->configuration = new Configuration($core);
+        $this->configuration->setProcesses(2);
         $this->emitter = new EventEmitter();
         $this->runner = new StreamSelectRunner($this->configuration, $this->emitter);
     });
@@ -22,7 +23,10 @@ describe('StreamSelectRunner', function () {
     describe('->attach()', function () {
         beforeEach(function () {
             $interface = 'Peridot\Concurrency\Runner\StreamSelect\WorkerInterface';
-            $this->worker = $this->getProphet()->prophesize($interface);
+            $this->workers = [];
+            for ($i = 0; $i <= $this->configuration->getProcesses(); $i++) {
+                $this->workers[] = $this->getProphet()->prophesize($interface);
+            }
         });
 
         afterEach(function () {
@@ -30,8 +34,23 @@ describe('StreamSelectRunner', function () {
         });
 
         it('should start the attached worker', function () {
-            $this->runner->attach($this->worker->reveal());
-            $this->worker->start()->shouldBeCalled();
+            $this->runner->attach($this->workers[0]->reveal());
+            $this->workers[0]->start()->shouldBeCalled();
+        });
+
+        it('should return true when a worker is attached', function () {
+            $attached = $this->runner->attach($this->workers[0]->reveal());
+            expect($attached)->to->be->true;
+        });
+
+        it('should return false when attempting to attach a worker beyond process count', function () {
+            $processes = $this->configuration->getProcesses();
+            for ($i = 0; $i < $processes; $i++) {
+                $attached = $this->runner->attach($this->workers[$i]->reveal());
+                expect($attached)->to->be->true;
+            }
+            $attached = $this->runner->attach($this->workers[$processes]);
+            expect($attached)->to->be->false();
         });
     });
 });
