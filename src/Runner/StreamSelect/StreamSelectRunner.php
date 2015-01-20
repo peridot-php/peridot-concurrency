@@ -68,8 +68,13 @@ class StreamSelectRunner implements RunnerInterface
         if (sizeof($this->workers) === $this->config->getProcesses()) {
             return false;
         }
+
         $this->workers[] = $worker;
-        $worker->start();
+
+        if (! $worker->isStarted()) {
+            $worker->start();
+        }
+
         return true;
     }
 

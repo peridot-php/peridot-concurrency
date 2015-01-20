@@ -38,6 +38,12 @@ describe('StreamSelectRunner', function () {
             $this->workers[0]->start()->shouldBeCalled();
         });
 
+        it('should not start the worker if it is already started', function () {
+            $this->workers[1]->isStarted()->willReturn(true);
+            $this->runner->attach($this->workers[1]->reveal());
+            $this->workers[1]->start()->shouldNotBeCalled();
+        });
+
         it('should return true when a worker is attached', function () {
             $attached = $this->runner->attach($this->workers[0]->reveal());
             expect($attached)->to->be->true;
