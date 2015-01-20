@@ -20,7 +20,7 @@ class SuiteLoader extends CoreLoader
      * @param string $pattern
      * @param EventEmitterInterface $eventEmitter
      */
-    public function __construct($pattern, EventEmitterInterface $eventEmitter) 
+    public function __construct($pattern, EventEmitterInterface $eventEmitter)
     {
         parent::__construct($pattern);
         $this->eventEmitter = $eventEmitter;

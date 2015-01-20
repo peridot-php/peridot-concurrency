@@ -48,8 +48,7 @@ class StreamSelectRunner implements RunnerInterface
         Configuration $config,
         EventEmitterInterface $emitter,
         ResourceOpenInterface $resourceOpen = null
-    )
-    {
+    ) {
         $this->config = $config;
         $this->emitter = $emitter;
         $this->resourceOpen = $resourceOpen ?: new ProcOpen();

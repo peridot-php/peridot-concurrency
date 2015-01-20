@@ -39,9 +39,9 @@ class Worker implements WorkerInterface
     private $pipes = [];
 
     /**
-     * @var Peridot\Concurrency\Runner\StreamSelect\ProcessOpenerInterface
+     * @var Peridot\Concurrency\Runner\StreamSelect\ResourceOpenInterface
      */
-    private $processOpener;
+    private $resourceOpen;
 
     /**
      * Descriptor for proc_open. Defines
@@ -63,11 +63,10 @@ class Worker implements WorkerInterface
         $executable,
         EventEmitterInterface $eventEmitter,
         ResourceOpenInterface $opener = null
-    )
-    {
+    ) {
         $this->executable = $executable;
         $this->eventEmitter = $emitter;
-        $this->processOpener = $opener ?: new ProcOpen();
+        $this->resourceOpen = $opener ?: new ProcOpen();
     }
 
     /**
@@ -80,7 +79,7 @@ class Worker implements WorkerInterface
         $pipes = [];
 
         $this->process = call_user_func_array(
-            $this->processOpener,
+            $this->resourceOpen,
             [$this->executable, self::$descriptorspec, $pipes]
         );
 
