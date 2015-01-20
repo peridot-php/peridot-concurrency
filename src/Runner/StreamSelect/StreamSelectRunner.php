@@ -64,7 +64,7 @@ class StreamSelectRunner implements RunnerInterface
      */
     public function run(TestResult $result)
     {
-
+        $this->startWorkers();
     }
 
     /**
