@@ -32,10 +32,12 @@ use Peridot\Configuration;
 use Peridot\Core\TestResult;
 use Peridot\Runner\Runner;
 use Peridot\Runner\Context;
+use Peridot\Concurrency\Environment\Reader;
 
 $stdin = fopen('php://stdin', 'r');
 
-$configuration = new Configuration();
+$reader = new Reader(new Configuration());
+$configuration = $reader->getConfiguration();
 require_once $configuration->getDsl();
 
 

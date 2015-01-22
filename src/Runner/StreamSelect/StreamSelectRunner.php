@@ -1,7 +1,6 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect;
 
-use Peridot\Concurrency\Configuration;
 use Peridot\Core\HasEventEmitterTrait;
 use Peridot\Runner\RunnerInterface;
 use Peridot\Core\TestResult;
