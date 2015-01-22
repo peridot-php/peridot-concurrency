@@ -6,7 +6,7 @@ use Peridot\Configuration as CoreConfiguration;
 class Configuration
 {
     /**
-     * @var Peridot\Configuration
+     * @var \Peridot\Configuration
      */
     protected $config;
 
@@ -16,7 +16,7 @@ class Configuration
     protected $processes = 5;
 
     /**
-     * @param Peridot\Configuration $config
+     * @param \Peridot\Configuration $config
      */
     public function __construct(CoreConfiguration $config)
     {

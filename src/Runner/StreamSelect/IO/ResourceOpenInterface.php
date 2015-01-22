@@ -1,5 +1,5 @@
 <?php
-namespace Peridot\Concurrency\Runner\StreamSelect;
+namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
 /**
  * Defines an invokable object for opening a resource that

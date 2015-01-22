@@ -1,5 +1,5 @@
 <?php
-namespace Peridot\Concurrency\Runner\StreamSelect;
+namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
 /**
  * Opens a process via the native proc_open function.

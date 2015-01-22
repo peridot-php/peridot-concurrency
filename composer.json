@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "peridot-php/peridot": "~1.10"
+        "peridot-php/peridot": "~1.11"
     },
     "require-dev": {
         "peridot-php/leo": "~1.0",

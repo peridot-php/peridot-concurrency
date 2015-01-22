@@ -2,6 +2,7 @@
 namespace Peridot\Concurrency\Runner\StreamSelect;
 
 use Peridot\Concurrency\Configuration;
+use Peridot\Core\HasEventEmitterTrait;
 use Peridot\Runner\RunnerInterface;
 use Peridot\Core\TestResult;
 use Evenement\EventEmitterInterface;
@@ -15,6 +16,8 @@ use Evenement\EventEmitterInterface;
  */
 class StreamSelectRunner implements RunnerInterface
 {
+    use HasEventEmitterTrait;
+
     /**
      * @var Configuration
      */
@@ -36,7 +39,7 @@ class StreamSelectRunner implements RunnerInterface
     protected $workers = [];
 
     /**
-     * @var ResourceOpenInterface
+     * @var IO\ResourceOpenInterface
      */
     protected $resourceOpen;
 
@@ -47,11 +50,11 @@ class StreamSelectRunner implements RunnerInterface
     public function __construct(
         Configuration $config,
         EventEmitterInterface $emitter,
-        ResourceOpenInterface $resourceOpen = null
+        IO\ResourceOpenInterface $resourceOpen = null
     ) {
         $this->config = $config;
-        $this->emitter = $emitter;
-        $this->resourceOpen = $resourceOpen ?: new ProcOpen();
+        $this->eventEmitter = $emitter;
+        $this->resourceOpen = $resourceOpen ?: new IO\ProcOpen();
         $this->listen();
     }
 
@@ -72,7 +75,7 @@ class StreamSelectRunner implements RunnerInterface
      *
      * @return bool
      */
-    public function attach(WorkerInterface $worker)
+    public function attach(IO\WorkerInterface $worker)
     {
         if (sizeof($this->workers) === $this->config->getProcesses()) {
             return false;
@@ -97,7 +100,7 @@ class StreamSelectRunner implements RunnerInterface
         $processes = $this->config->getProcesses();
         for ($i = 0; $i < $processes; $i++) {
             $exec = __DIR__ . '/select-runner.php';
-            $worker = new Worker("php $exec", $this->eventEmitter, $this->resourceOpen);
+            $worker = new IO\Worker("php $exec", $this->eventEmitter, $this->resourceOpen);
             $this->attach($worker);
         }
     }
@@ -150,7 +153,7 @@ class StreamSelectRunner implements RunnerInterface
      */
     protected function listen()
     {
-        $this->emitter->on('peridot.concurrency.loadstart', [$this, 'setPending']);
-        $this->emitter->on('peridot.concurrency.suiteloading', [$this, 'onSuiteLoading']);
+        $this->eventEmitter->on('peridot.concurrency.loadstart', [$this, 'setPending']);
+        $this->eventEmitter->on('peridot.concurrency.suiteloading', [$this, 'onSuiteLoading']);
     }
 }

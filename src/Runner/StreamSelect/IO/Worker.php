@@ -1,5 +1,5 @@
 <?php
-namespace Peridot\Concurrency\Runner\StreamSelect;
+namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
 use Peridot\Core\HasEventEmitterTrait;
 use Evenement\EventEmitterInterface;

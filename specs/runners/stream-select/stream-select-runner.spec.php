@@ -1,6 +1,6 @@
 <?php
 use Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner;
-use Peridot\Concurrency\Runner\StreamSelect\TmpfileOpen;
+use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
 use Peridot\Concurrency\Configuration;
 use Peridot\Configuration as CoreConfig;
 use Evenement\EventEmitter;
@@ -25,7 +25,7 @@ describe('StreamSelectRunner', function () {
 
     describe('->attach()', function () {
         beforeEach(function () {
-            $interface = 'Peridot\Concurrency\Runner\StreamSelect\WorkerInterface';
+            $interface = 'Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface';
             $this->workers = [];
             for ($i = 0; $i <= $this->configuration->getProcesses(); $i++) {
                 $this->workers[] = $this->getProphet()->prophesize($interface);
@@ -72,7 +72,7 @@ describe('StreamSelectRunner', function () {
 
         context('when workers are already attached', function () {
             it('should not add additional workers', function () {
-                $interface = 'Peridot\Concurrency\Runner\StreamSelect\WorkerInterface';
+                $interface = 'Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface';
                 $worker = $this->getProphet()->prophesize($interface);
                 $this->runner->attach($worker->reveal());
                 $this->runner->startWorkers();

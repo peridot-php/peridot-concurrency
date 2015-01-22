@@ -1,0 +1,58 @@
+#!/usr/bin/env php
+<?php
+$autoloaders = [
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/vendor/autoload.php',
+    __DIR__ . '/../autoload.php'
+];
+
+foreach ($autoloaders as $file) {
+    if (file_exists($file)) {
+        define('PERIDOT_STREAM_SELECT_COMPOSER_INSTALL', $file);
+        break;
+    }
+}
+
+unset($autoloaders, $file);
+
+if (!defined('PERIDOT_STREAM_SELECT_COMPOSER_INSTALL')) {
+    fwrite(STDERR,
+        'You need to set up the project dependencies using the following commands:' . PHP_EOL .
+        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
+        'php composer.phar install' . PHP_EOL
+    );
+    exit(1);
+}
+
+require_once PERIDOT_STREAM_SELECT_COMPOSER_INSTALL;
+
+use Evenement\EventEmitter;
+use Peridot\Configuration;
+use Peridot\Core\TestResult;
+use Peridot\Runner\Runner;
+use Peridot\Runner\Context;
+
+$stdin = fopen('php://stdin', 'r');
+
+$configuration = new Configuration();
+require_once $configuration->getDsl();
+
+
+$context = Context::getInstance();
+$emitter = new EventEmitter();
+$emitter->on('test.passed', function($test) {
+    fwrite(STDOUT, $test->getDescription() . "\n");
+});
+
+while (true) {
+    $input = fgets($stdin);
+    $path = trim($input);
+    require $path;
+
+    $suite = $context->getCurrentSuite();
+    $runner = new Runner($suite, $configuration, $emitter);
+    $result = new TestResult($emitter);
+    $runner->run($result);
+    $context->clear();
+}

@@ -1,5 +1,5 @@
 <?php
-namespace Peridot\Concurrency\Runner\StreamSelect;
+namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
 /**
  * A WorkerInterface defines the contract for a worker designed
