@@ -16,6 +16,14 @@ describe('WorkerPool', function () {
         $this->pool = new WorkerPool($this->configuration, $this->emitter, $open);
     });
 
+    beforeEach(function () {
+        $interface = 'Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface';
+        $this->workers = [];
+        for ($i = 0; $i <= $this->configuration->getProcesses(); $i++) {
+            $this->workers[] = $this->getProphet()->prophesize($interface);
+        }
+    });
+
     context('when peridot.concurrency.loadstart event is emitted', function () {
         it('should set pending count on the pool', function () {
             $this->emitter->emit('peridot.concurrency.loadstart', [3]);
@@ -24,13 +32,6 @@ describe('WorkerPool', function () {
     });
 
     describe('->attach()', function () {
-        beforeEach(function () {
-            $interface = 'Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface';
-            $this->workers = [];
-            for ($i = 0; $i <= $this->configuration->getProcesses(); $i++) {
-                $this->workers[] = $this->getProphet()->prophesize($interface);
-            }
-        });
 
         afterEach(function () {
             $this->getProphet()->checkPredictions();
@@ -79,6 +80,29 @@ describe('WorkerPool', function () {
                 $processes = $this->configuration->getProcesses();
                 expect($this->pool->getWorkers())->to->have->length($processes);
             });
+        });
+    });
+
+    describe('->getAvailableWorker()', function () {
+
+        afterEach(function () {
+            $this->getProphet()->checkPredictions();
+        });
+
+        it('should get the first worker that is not running', function () {
+
+            for ($i = 0; $i < $this->configuration->getProcesses(); $i++) {
+                $worker = $this->workers[$i];
+                $worker->isRunning()->willReturn(true);
+                $worker->isStarted()->willReturn(false);
+                $worker->start()->shouldBeCalled();
+                $this->pool->attach($worker->reveal());
+            }
+
+            $stoppedWorker = $this->workers[$this->configuration->getProcesses() - 1];
+            $stoppedWorker->isRunning()->willReturn(false);
+
+            expect($this->pool->getAvailableWorker())->to->equal($stoppedWorker->reveal());
         });
     });
 });

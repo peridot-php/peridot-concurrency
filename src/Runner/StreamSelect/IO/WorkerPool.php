@@ -50,6 +50,41 @@ class WorkerPool
         $this->eventEmitter->on('peridot.concurrency.loadstart', [$this, 'setPending']);
     }
 
+    public function start()
+    {
+        $this->startWorkers();
+        $this->eventEmitter->on('peridot.concurrency.suiteloading', [$this, 'onSuiteLoading']);
+        $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
+    }
+
+    /**
+     * @param string $path
+     */
+    public function onSuiteLoading($path)
+    {
+        $worker = $this->getAvailableWorker();
+        $worker->run($path);
+    }
+
+    /**
+     * Get the next available worker.
+     *
+     * @return WorkerInterface
+     */
+    public function getAvailableWorker()
+    {
+        $available = null;
+        while (is_null($available)) {
+            foreach ($this->workers as $worker) {
+                if (! $worker->isRunning()) {
+                    $available = $worker;
+                    break;
+                }
+            }
+        }
+        return $available;
+    }
+
     /**
      * Start worker processes, attaching worker processes
      * to fill the number of configured processes.

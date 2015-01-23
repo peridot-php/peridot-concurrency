@@ -39,7 +39,7 @@ class Worker implements WorkerInterface
     private $pipes = [];
 
     /**
-     * @var Peridot\Concurrency\Runner\StreamSelect\ResourceOpenInterface
+     * @var \Peridot\Concurrency\Runner\StreamSelect\IO\ResourceOpenInterface
      */
     private $resourceOpen;
 
@@ -65,7 +65,7 @@ class Worker implements WorkerInterface
         ResourceOpenInterface $opener = null
     ) {
         $this->executable = $executable;
-        $this->eventEmitter = $emitter;
+        $this->eventEmitter = $eventEmitter;
         $this->resourceOpen = $opener ?: new ProcOpen();
     }
 
