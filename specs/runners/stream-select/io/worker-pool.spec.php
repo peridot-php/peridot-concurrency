@@ -1,4 +1,5 @@
 <?php
+use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface;
 use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerPool;
 use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
 use Peridot\Concurrency\Configuration;
@@ -31,18 +32,31 @@ describe('WorkerPool', function () {
         });
     });
 
-    describe('->attach()', function () {
+    /**
+     * Helper for mocking stream accessors.
+     *
+     * @param $worker
+     */
+    $mockStreams = function ($worker) {
+        $worker->getOutputStream()->willReturn(tmpfile());
+        $worker->getErrorStream()->willReturn(tmpfile());
+    };
+
+    describe('->attach()', function () use ($mockStreams) {
 
         afterEach(function () {
             $this->getProphet()->checkPredictions();
         });
 
-        it('should start the attached worker', function () {
+
+        it('should start the attached worker', function () use ($mockStreams) {
             $this->pool->attach($this->workers[0]->reveal());
+            $mockStreams($this->workers[0]);
             $this->workers[0]->start()->shouldBeCalled();
         });
 
-        it('should not start the worker if it is already started', function () {
+        it('should not start the worker if it is already started', function () use ($mockStreams) {
+            $mockStreams($this->workers[1]);
             $this->workers[1]->isStarted()->willReturn(true);
             $this->pool->attach($this->workers[1]->reveal());
             $this->workers[1]->start()->shouldNotBeCalled();
@@ -71,6 +85,17 @@ describe('WorkerPool', function () {
             expect($this->pool->getWorkers())->to->have->length($processes);
         });
 
+        it('should store read streams for all workers', function () {
+            $this->pool->startWorkers();
+            $workers = $this->pool->getWorkers();
+            $readStreams = [];
+            foreach ($workers as $worker) {
+                $readStreams[] = $worker->getOutputStream();
+                $readStreams[] = $worker->getErrorStream();
+            }
+            expect($this->pool->getReadStreams())->to->loosely->equal($readStreams);;
+        });
+
         context('when workers are already attached', function () {
             it('should not add additional workers', function () {
                 $interface = 'Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface';
@@ -83,19 +108,20 @@ describe('WorkerPool', function () {
         });
     });
 
-    describe('->getAvailableWorker()', function () {
+    describe('->getAvailableWorker()', function () use ($mockStreams) {
 
         afterEach(function () {
             $this->getProphet()->checkPredictions();
         });
 
-        it('should get the first worker that is not running', function () {
+        it('should get the first worker that is not running', function () use ($mockStreams) {
 
             for ($i = 0; $i < $this->configuration->getProcesses(); $i++) {
                 $worker = $this->workers[$i];
                 $worker->isRunning()->willReturn(true);
                 $worker->isStarted()->willReturn(false);
                 $worker->start()->shouldBeCalled();
+                $mockStreams($worker);
                 $this->pool->attach($worker->reveal());
             }
 

@@ -35,6 +35,11 @@ class WorkerPool
     protected $resourceOpen;
 
     /**
+     * @var array
+     */
+    protected $readStreams = [];
+
+    /**
      * @param Configuration $configuration
      * @param EventEmitterInterface $eventEmitter
      * @param ResourceOpenInterface $resourceOpen
@@ -103,7 +108,8 @@ class WorkerPool
 
     /**
      * Attach a worker to the WorkerPool and start
-     * it if it is not already started.
+     * it if it is not already started. The workers output and error streams will
+     * be stored and monitored for changes.
      *
      * @return bool
      */
@@ -119,6 +125,9 @@ class WorkerPool
             $worker->start();
         }
 
+        $this->readStreams[] = $worker->getOutputStream();
+        $this->readStreams[] = $worker->getErrorStream();
+
         return true;
     }
 
@@ -130,6 +139,16 @@ class WorkerPool
     public function getWorkers()
     {
         return $this->workers;
+    }
+
+    /**
+     * Get all streams being read from.
+     *
+     * @return array
+     */
+    public function getReadStreams()
+    {
+        return $this->readStreams;
     }
 
     /**
