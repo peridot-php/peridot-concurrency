@@ -36,9 +36,6 @@ class SuiteLoader extends CoreLoader
     public function load($path)
     {
         $tests = $this->getTests($path);
-        $this->eventEmitter->emit('peridot.concurrency.loadstart', [sizeof($tests)]);
-        foreach ($tests as $test) {
-            $this->eventEmitter->emit('peridot.concurrency.suiteloading', [$test]);
-        }
+        $this->eventEmitter->emit('peridot.concurrency.load', [$tests]);
     }
 }

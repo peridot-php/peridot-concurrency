@@ -53,13 +53,12 @@ class WorkerPool
         $this->eventEmitter = $eventEmitter;
         $this->resourceOpen = $resourceOpen;
         $this->eventEmitter->on('peridot.concurrency.loadstart', [$this, 'setPending']);
+        $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
     }
 
     public function start()
     {
         $this->startWorkers();
-        $this->eventEmitter->on('peridot.concurrency.suiteloading', [$this, 'onSuiteLoading']);
-        $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
     }
 
     /**
