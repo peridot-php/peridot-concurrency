@@ -24,11 +24,11 @@ class StreamSelectRunner implements RunnerInterface
 
     /**
      * @param EventEmitterInterface $emitter
-     * @param IO\WorkerPool $pool
+     * @param IO\WorkerPoolInterface $pool
      */
     public function __construct(
         EventEmitterInterface $emitter,
-        IO\WorkerPool $pool
+        IO\WorkerPoolInterface $pool
     ) {
         $this->eventEmitter = $emitter;
         $this->pool = $pool;

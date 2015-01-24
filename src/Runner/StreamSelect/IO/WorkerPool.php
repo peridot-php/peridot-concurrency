@@ -6,11 +6,11 @@ use Peridot\Concurrency\Configuration;
 use Peridot\Core\HasEventEmitterTrait;
 
 /**
- * The WorkerPool manages open worker processes.
+ * An evented WorkerPool for managing worker processes.
  *
  * @package Peridot\Concurrency\Runner\StreamSelect\IO
  */
-class WorkerPool
+class WorkerPool implements WorkerPoolInterface
 {
     use HasEventEmitterTrait;
 
@@ -61,8 +61,7 @@ class WorkerPool
     }
 
     /**
-     * Starts all workers and sends input to them until none
-     * is left. Additionally starts polling of streams for changes.
+     * {@inheritdoc}
      *
      * @return void
      */
@@ -82,8 +81,7 @@ class WorkerPool
     }
 
     /**
-     * Poll worker streams for changes. If any changes are detected, then an
-     * event is emitted signaling which worker has completed.
+     * {@inheritdoc}
      *
      * @return void
      */
@@ -98,28 +96,13 @@ class WorkerPool
             throw new \RuntimeException("stream_select() returned an error");
         }
 
-        foreach ($read as $stream) {
-            foreach ($this->running as $worker) {
-                if ($worker->hasStream($stream)) {
-                    $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
-                }
-            }
-        }
+        $this->freeStreams($read);
     }
 
     /**
-     * @param string $path
-     */
-    public function onSuiteLoading($path)
-    {
-        $worker = $this->getAvailableWorker();
-        $worker->run($path);
-    }
-
-    /**
-     * Get the next available worker.
+     * {@inheritdoc}
      *
-     * @return WorkerInterface|null
+     * @return null|WorkerInterface
      */
     public function getAvailableWorker()
     {
@@ -132,8 +115,10 @@ class WorkerPool
     }
 
     /**
-     * Start worker processes, attaching worker processes
-     * to fill the number of configured processes.
+     * {@inheritdoc}
+     *
+     * If any changes are detected, then an
+     * event is emitted signaling which worker has completed.
      *
      * @return void
      */
@@ -149,10 +134,9 @@ class WorkerPool
     }
 
     /**
-     * Attach a worker to the WorkerPool and start
-     * it if it is not already started. The workers output and error streams will
-     * be stored and monitored for changes.
+     * {@inheritdoc}
      *
+     * @param WorkerInterface $worker
      * @return bool
      */
     public function attach(WorkerInterface $worker)
@@ -174,7 +158,7 @@ class WorkerPool
     }
 
     /**
-     * Get all workers attached to the runner.
+     * {@inheritdoc}
      *
      * @return array
      */
@@ -184,7 +168,7 @@ class WorkerPool
     }
 
     /**
-     * Get all streams being read from.
+     * {@inheritdoc}
      *
      * @return array
      */
@@ -194,10 +178,9 @@ class WorkerPool
     }
 
     /**
-     * Set the pending tests.
+     * {@inheritdoc}
      *
-     * @param int $pending
-     * @return void
+     * @param array $pending
      */
     public function setPending($pending)
     {
@@ -205,9 +188,9 @@ class WorkerPool
     }
 
     /**
-     * Get the number of pending tests.
+     * {@inheritdoc}
      *
-     * @return int
+     * @return array
      */
     public function getPending()
     {
@@ -215,7 +198,7 @@ class WorkerPool
     }
 
     /**
-     * Return a collection of running workers.
+     * {@inheritdoc}
      *
      * @return array
      */
@@ -225,9 +208,9 @@ class WorkerPool
     }
 
     /**
-     * @param WorkerInterface $worker
+     * {@inheritdoc}
      *
-     * @return void
+     * @param WorkerInterface $worker
      */
     public function addRunning(WorkerInterface $worker)
     {
@@ -235,7 +218,7 @@ class WorkerPool
     }
 
     /**
-     * Checks if there are any pending tests or running workers.
+     * {@inheritdoc}
      *
      * @return bool
      */
@@ -247,8 +230,8 @@ class WorkerPool
     }
 
     /**
-     * Free a worker and remove it from the list of running
-     * workers.
+     * Frees a worker and removes workers that are not running
+     * from the internal collection of running workers.
      *
      * @param WorkerInterface $worker
      *
@@ -272,5 +255,24 @@ class WorkerPool
         $this->eventEmitter->on('peridot.concurrency.load', [$this, 'setPending']);
         $this->eventEmitter->on('peridot.concurrency.worker.run', [$this, 'addRunning']);
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
+    }
+
+    /**
+     * Attempts to free workers by matching a modified stream
+     * to the worker that owns it. Emits a completed event that signals
+     * a worker should be freed.
+     *
+     * @param array $modified - an array of modified read streams.
+     * @return void
+     */
+    protected function freeStreams($modified)
+    {
+        foreach ($modified as $stream) {
+            foreach ($this->running as $worker) {
+                if ($worker->hasStream($stream)) {
+                    $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
+                }
+            }
+        }
     }
 } 
