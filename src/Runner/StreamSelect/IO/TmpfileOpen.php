@@ -33,14 +33,4 @@ class TmpfileOpen implements ResourceOpenInterface
 
         return $main;
     }
-
-    /**
-     * Clean up temp resources
-     */
-    public function __destruct()
-    {
-        foreach ($this->tempfiles as $temp) {
-            fclose($temp);
-        }
-    }
 }
