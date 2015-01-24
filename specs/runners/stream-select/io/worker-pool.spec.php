@@ -1,4 +1,5 @@
 <?php
+use Peridot\Concurrency\Runner\StreamSelect\IO\Worker;
 use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface;
 use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerPool;
 use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
@@ -136,6 +137,24 @@ describe('WorkerPool', function () {
             $stoppedWorker->isRunning()->willReturn(false);
 
             expect($this->pool->getAvailableWorker())->to->equal($stoppedWorker->reveal());
+        });
+    });
+
+    describe('->isWorking()', function () {
+        it('should return false if no pending tests and no running', function () {
+            expect($this->pool->isWorking())->to->be->false;
+        });
+
+        it('should return true if there are running workers and no pending tests', function () {
+            $worker = new Worker('bin', $this->emitter, new TmpfileOpen());
+            $this->pool->attach($worker);
+            $worker->run('some path');
+            expect($this->pool->isWorking())->to->be->true;
+        });
+
+        it('should return true if there are not running workers and some pending tests', function () {
+            $this->pool->setPending(['spec.php']);
+            expect($this->pool->isWorking())->to->be->true;
         });
     });
 });

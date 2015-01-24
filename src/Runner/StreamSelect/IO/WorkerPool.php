@@ -196,6 +196,18 @@ class WorkerPool
     }
 
     /**
+     * Checks if there are any pending tests or running workers.
+     *
+     * @return bool
+     */
+    public function isWorking()
+    {
+        $numPending = sizeof($this->getPending());
+        $numRunning = sizeof($this->getRunning());
+        return $numPending > 0 || $numRunning > 0;
+    }
+
+    /**
      * Set event listeners.
      *
      * @return void
