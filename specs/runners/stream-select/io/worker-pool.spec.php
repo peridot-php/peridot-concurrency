@@ -104,6 +104,15 @@ describe('WorkerPool', function () {
             expect($this->pool->getReadStreams())->to->loosely->equal($readStreams);;
         });
 
+        it('should emit a peridot.concurrency.pool.start-workers event', function () {
+            $self = null;
+            $this->emitter->on('peridot.concurrency.pool.start-workers', function ($pool) use (&$self) {
+                $self = $pool;
+            });
+            $this->pool->startWorkers();
+            expect($self)->to->equal($this->pool);
+        });
+
         context('when workers are already attached', function () {
             it('should not add additional workers', function () {
                 $interface = 'Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface';

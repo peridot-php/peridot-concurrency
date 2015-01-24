@@ -107,6 +107,7 @@ class WorkerPool
             $worker = new Worker("php $exec", $this->eventEmitter, $this->resourceOpen);
             $this->attach($worker);
         }
+        $this->eventEmitter->emit('peridot.concurrency.pool.start-workers', [$this]);
     }
 
     /**
