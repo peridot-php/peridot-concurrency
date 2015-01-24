@@ -63,6 +63,9 @@ class WorkerPool
     public function start()
     {
         $this->startWorkers();
+        while ($this->isWorking()) {
+
+        }
     }
 
     /**
@@ -77,20 +80,16 @@ class WorkerPool
     /**
      * Get the next available worker.
      *
-     * @return WorkerInterface
+     * @return WorkerInterface|null
      */
     public function getAvailableWorker()
     {
-        $available = null;
-        while (is_null($available)) {
-            foreach ($this->workers as $worker) {
-                if (! $worker->isRunning()) {
-                    $available = $worker;
-                    break;
-                }
+        foreach ($this->workers as $worker) {
+            if (! $worker->isRunning()) {
+                return $worker;
             }
         }
-        return $available;
+        return null;
     }
 
     /**

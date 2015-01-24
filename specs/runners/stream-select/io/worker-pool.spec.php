@@ -127,12 +127,7 @@ describe('WorkerPool', function () {
 
     describe('->getAvailableWorker()', function () use ($mockStreams) {
 
-        afterEach(function () {
-            $this->getProphet()->checkPredictions();
-        });
-
-        it('should get the first worker that is not running', function () use ($mockStreams) {
-
+        beforeEach(function () use ($mockStreams) {
             for ($i = 0; $i < $this->configuration->getProcesses(); $i++) {
                 $worker = $this->workers[$i];
                 $worker->isRunning()->willReturn(true);
@@ -141,11 +136,21 @@ describe('WorkerPool', function () {
                 $mockStreams($worker);
                 $this->pool->attach($worker->reveal());
             }
+        });
 
+        afterEach(function () {
+            $this->getProphet()->checkPredictions();
+        });
+
+        it('should get the first worker that is not running', function () {
             $stoppedWorker = $this->workers[$this->configuration->getProcesses() - 1];
             $stoppedWorker->isRunning()->willReturn(false);
 
             expect($this->pool->getAvailableWorker())->to->equal($stoppedWorker->reveal());
+        });
+
+        it('should return null if all workers are unavailable', function () {
+            expect($this->pool->getAvailableWorker())->to->be->null;
         });
     });
 
