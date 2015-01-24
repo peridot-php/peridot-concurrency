@@ -20,4 +20,16 @@ describe('Worker', function () {
             expect($self)->to->equal($this->worker);
         });
     });
+
+    describe('->hasStream()', function () {
+        it('should return true if the worker has the given stream', function () {
+            $input = $this->worker->getInputStream();
+            $output = $this->worker->getOutputStream();
+            $err = $this->worker->getErrorStream();
+
+            expect($this->worker->hasStream($input))->to->be->true;
+            expect($this->worker->hasStream($output))->to->be->true;
+            expect($this->worker->hasStream($err))->to->be->true;
+        });
+    });
 });

@@ -154,4 +154,19 @@ class Worker implements WorkerInterface
     {
         return $this->pipes[2];
     }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param $stream
+     * @return bool
+     */
+    public function hasStream($stream)
+    {
+        $isInputStream = $stream == $this->getInputStream();
+        $isOutputStream = $stream == $this->getOutputStream();
+        $isErrStream = $stream == $this->getErrorStream();
+
+        return $isInputStream || $isOutputStream || $isErrStream;
+    }
 }

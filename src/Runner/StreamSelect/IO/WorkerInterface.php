@@ -40,6 +40,15 @@ interface WorkerInterface
     public function getErrorStream();
 
     /**
+     * Check if the given stream belongs to
+     * the worker.
+     *
+     * @param $stream
+     * @return bool
+     */
+    public function hasStream($stream);
+
+    /**
      * Run the given test path against the worker process.
      *
      * @param string $testPath

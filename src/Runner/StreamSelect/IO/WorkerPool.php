@@ -64,8 +64,37 @@ class WorkerPool
     {
         $this->startWorkers();
         while ($this->isWorking()) {
+            $worker = $this->getAvailableWorker();
 
+            if (! $worker) {
+                continue;
+            }
+
+            $worker->run(array_shift($this->pending));
+            $this->poll();
         }
+    }
+
+    public function poll()
+    {
+        $read = $this->getReadStreams();
+        $write = null;
+        $except = null;
+        $modified = stream_select($read, $write, $except, 0, 200000);
+
+        if ($modified === false) {
+            throw new \RuntimeException("stream_select() returned an error");
+        }
+
+        foreach ($read as $stream) {
+            foreach ($this->running as $worker) {
+                if ($worker->hasStream($stream)) {
+                    $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
+                }
+            }
+        }
+
+        return $modified;
     }
 
     /**
