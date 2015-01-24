@@ -60,6 +60,12 @@ class WorkerPool
         $this->listen();
     }
 
+    /**
+     * Starts all workers and sends input to them until none
+     * is left. Additionally starts polling of streams for changes.
+     *
+     * @return void
+     */
     public function start()
     {
         $this->startWorkers();
@@ -75,6 +81,12 @@ class WorkerPool
         }
     }
 
+    /**
+     * Poll worker streams for changes. If any changes are detected, then an
+     * event is emitted signaling which worker has completed.
+     *
+     * @return void
+     */
     public function poll()
     {
         $read = $this->getReadStreams();
@@ -93,8 +105,6 @@ class WorkerPool
                 }
             }
         }
-
-        return $modified;
     }
 
     /**
