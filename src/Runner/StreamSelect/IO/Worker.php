@@ -112,6 +112,7 @@ class Worker implements WorkerInterface
         $data = $testPath . "\n";
         fwrite($this->getInputStream(), $data);
         $this->isRunning = true;
+        $this->eventEmitter->emit('peridot.concurrency.worker.run', [$this]);
     }
 
     /**

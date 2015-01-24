@@ -32,6 +32,13 @@ describe('WorkerPool', function () {
         });
     });
 
+    context('when peridot.concurrency.worker.run event is emitted', function () {
+        it('should increment the running count', function () {
+            $this->emitter->emit('peridot.concurrency.worker.run', [$this->workers[0]->reveal()]);
+            expect($this->pool->getRunning())->to->have->length(1);
+        });
+    });
+
     /**
      * Helper for mocking stream accessors.
      *

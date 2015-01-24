@@ -27,6 +27,11 @@ class WorkerPool
     /**
      * @var array
      */
+    protected $running = [];
+
+    /**
+     * @var array
+     */
     protected $workers = [];
 
     /**
@@ -52,8 +57,7 @@ class WorkerPool
         $this->configuration = $configuration;
         $this->eventEmitter = $eventEmitter;
         $this->resourceOpen = $resourceOpen;
-        $this->eventEmitter->on('peridot.concurrency.load', [$this, 'setPending']);
-        $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
+        $this->listen();
     }
 
     public function start()
@@ -169,5 +173,37 @@ class WorkerPool
     public function getPending()
     {
         return $this->pending;
+    }
+
+    /**
+     * Return a collection of running workers.
+     *
+     * @return array
+     */
+    public function getRunning()
+    {
+        return $this->running;
+    }
+
+    /**
+     * @param WorkerInterface $worker
+     *
+     * @return void
+     */
+    public function addRunning(WorkerInterface $worker)
+    {
+        $this->running[] = $worker;
+    }
+
+    /**
+     * Set event listeners.
+     *
+     * @return void
+     */
+    protected function listen()
+    {
+        $this->eventEmitter->on('peridot.concurrency.load', [$this, 'setPending']);
+        $this->eventEmitter->on('peridot.concurrency.worker.run', [$this, 'addRunning']);
+        $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
     }
 } 
