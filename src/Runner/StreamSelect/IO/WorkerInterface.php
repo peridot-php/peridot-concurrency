@@ -71,4 +71,11 @@ interface WorkerInterface
      * @return bool
      */
     public function isStarted();
+
+    /**
+     * Stop the worker from running.
+     *
+     * @return void
+     */
+    public function free();
 }

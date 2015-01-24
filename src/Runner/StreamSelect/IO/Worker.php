@@ -111,7 +111,7 @@ class Worker implements WorkerInterface
     {
         $data = $testPath . "\n";
         fwrite($this->getInputStream(), $data);
-        $this->isRunning = true;
+        $this->running = true;
         $this->eventEmitter->emit('peridot.concurrency.worker.run', [$this]);
     }
 
@@ -168,5 +168,15 @@ class Worker implements WorkerInterface
         $isErrStream = $stream == $this->getErrorStream();
 
         return $isInputStream || $isOutputStream || $isErrStream;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return void
+     */
+    public function free()
+    {
+        $this->running = false;
     }
 }

@@ -19,6 +19,11 @@ describe('Worker', function () {
             $this->worker->run('/path/to/test.php');
             expect($self)->to->equal($this->worker);
         });
+
+        it('should run the worker', function () {
+            $this->worker->run('/path/to/test.php');
+            expect($this->worker->isRunning())->to->be->true;
+        });
     });
 
     describe('->hasStream()', function () {
@@ -30,6 +35,14 @@ describe('Worker', function () {
             expect($this->worker->hasStream($input))->to->be->true;
             expect($this->worker->hasStream($output))->to->be->true;
             expect($this->worker->hasStream($err))->to->be->true;
+        });
+    });
+
+    describe('->free()', function () {
+        it('should make the worker stop running', function () {
+            $this->worker->run('/path/to/test.php');
+            $this->worker->free();
+            expect($this->worker->isRunning())->to->be->false;
         });
     });
 });
