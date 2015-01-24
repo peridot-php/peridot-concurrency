@@ -237,6 +237,22 @@ class WorkerPool
     }
 
     /**
+     * Free a worker and remove it from the list of running
+     * workers.
+     *
+     * @param WorkerInterface $worker
+     *
+     * @return void
+     */
+    public function onWorkerComplete(WorkerInterface $worker)
+    {
+        $worker->free();
+        $this->running = array_filter($this->running, function (WorkerInterface $worker) {
+            return $worker->isRunning();
+        });
+    }
+
+    /**
      * Set event listeners.
      *
      * @return void

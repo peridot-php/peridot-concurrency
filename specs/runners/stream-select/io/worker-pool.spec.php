@@ -171,4 +171,24 @@ describe('WorkerPool', function () {
             expect($this->pool->isWorking())->to->be->true;
         });
     });
+
+    context('when peridot.concurrency.worker.completed event is emitted', function () {
+        afterEach(function () {
+            $this->getProphet()->checkPredictions();
+        });
+
+        it('should free the completed worker', function () {
+            $worker = $this->workers[0];
+            $worker->free()->shouldBeCalled();
+            $this->emitter->emit('peridot.concurrency.worker.completed', [$worker->reveal()]);
+        });
+
+        it('should reduce the running workers', function () {
+            $worker = new Worker('bin', $this->emitter, new TmpfileOpen());
+            $this->pool->attach($worker);
+            $worker->run('some path');
+            $this->emitter->emit('peridot.concurrency.worker.completed', [$worker]);
+            expect($this->pool->getRunning())->to->have->length(0);
+        });
+    });
 });
