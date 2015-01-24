@@ -20,9 +20,9 @@ class WorkerPool
     protected $configuration;
 
     /**
-     * @var int
+     * @var array
      */
-    protected $pending = 0;
+    protected $pending = [];
 
     /**
      * @var array
@@ -52,7 +52,7 @@ class WorkerPool
         $this->configuration = $configuration;
         $this->eventEmitter = $eventEmitter;
         $this->resourceOpen = $resourceOpen;
-        $this->eventEmitter->on('peridot.concurrency.loadstart', [$this, 'setPending']);
+        $this->eventEmitter->on('peridot.concurrency.load', [$this, 'setPending']);
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
     }
 
@@ -151,7 +151,7 @@ class WorkerPool
     }
 
     /**
-     * Set the number of pending tests.
+     * Set the pending tests.
      *
      * @param int $pending
      * @return void

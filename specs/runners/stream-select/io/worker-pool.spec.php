@@ -25,10 +25,10 @@ describe('WorkerPool', function () {
         }
     });
 
-    context('when peridot.concurrency.loadstart event is emitted', function () {
-        it('should set pending count on the pool', function () {
-            $this->emitter->emit('peridot.concurrency.loadstart', [3]);
-            expect($this->pool->getPending())->to->equal(3);
+    context('when peridot.concurrency.load event is emitted', function () {
+        it('should set pending test on the pool', function () {
+            $this->emitter->emit('peridot.concurrency.load', [['one.spec.php', 'two.spec.php', 'three.spec.php']]);
+            expect($this->pool->getPending())->to->have->length(3);
         });
     });
 
