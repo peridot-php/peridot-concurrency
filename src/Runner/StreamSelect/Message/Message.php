@@ -9,9 +9,10 @@ use Evenement\EventEmitterTrait;
  *
  * @package Peridot\Concurrency\Runner\StreamSelect\Message
  */
-class ReadableMessage
+class Message
 {
     use EventEmitterTrait;
+
     /**
      * @var resource
      */
@@ -33,6 +34,16 @@ class ReadableMessage
     protected $offset;
 
     /**
+     * @var bool
+     */
+    protected $readable = false;
+
+    /**
+     * @var bool
+     */
+    protected $writable = false;
+
+    /**
      * @param resource $resource
      * @param int $chunkSize
      */
@@ -52,12 +63,33 @@ class ReadableMessage
      */
     public function receive()
     {
+        if ($this->isWritable()) {
+            throw new \RuntimeException('Cannot read from writable message');
+        }
+
+        $this->readable = true;
         fseek($this->resource, $this->offset);
         while ($content = fread($this->resource, $this->chunkSize)) {
             $this->content .= $content;
             $this->emit('data', [$content]);
         }
         $this->offset = ftell($this->resource);
+    }
+
+    /**
+     * Write content to the stream.
+     *
+     * @param string $content
+     */
+    public function write($content)
+    {
+        if ($this->isReadable()) {
+            throw new \RuntimeException("Cannot write to a readable message");
+        }
+
+        $this->writable = true;
+        $content = trim($content);
+        fwrite($this->resource, $content . "\n");
     }
 
     /**
@@ -78,5 +110,23 @@ class ReadableMessage
     public function getResource()
     {
         return $this->resource;
+    }
+
+    /**
+     * Return if this message is a readable message.
+     *
+     * @return bool
+     */
+    public function isReadable()
+    {
+        return $this->readable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWritable()
+    {
+        return $this->writable;
     }
 } 
