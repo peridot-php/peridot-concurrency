@@ -55,6 +55,7 @@ class ReadableMessage
         fseek($this->resource, $this->offset);
         while ($content = fread($this->resource, $this->chunkSize)) {
             $this->content .= $content;
+            $this->emit('data', [$content]);
         }
         $this->offset = ftell($this->resource);
     }
