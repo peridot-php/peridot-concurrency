@@ -28,13 +28,17 @@ if (!defined('PERIDOT_STREAM_SELECT_COMPOSER_INSTALL')) {
 require_once PERIDOT_STREAM_SELECT_COMPOSER_INSTALL;
 
 use Evenement\EventEmitter;
+use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
 use Peridot\Configuration;
+use Peridot\Core\Suite;
 use Peridot\Core\TestResult;
 use Peridot\Runner\Runner;
 use Peridot\Runner\Context;
 use Peridot\Concurrency\Environment\Reader;
 
 $stdin = fopen('php://stdin', 'r');
+$stdout = fopen('php://stdout', 'w');
+$message = new TestMessage($stdout);
 
 $reader = new Reader(new Configuration());
 $configuration = $reader->getConfiguration();
@@ -43,9 +47,15 @@ require_once $configuration->getDsl();
 
 $context = Context::getInstance();
 $emitter = new EventEmitter();
-$emitter->on('test.passed', function($test) {
-    fwrite(STDOUT, $test->getDescription() . "\n");
+
+/**
+ * Register events to write messages.
+ */
+$emitter->on('suite.start', function (Suite $suite) use ($message) {
+    $message->writeTest($suite);
 });
+
+$emitter->on('suite.end')
 
 while (true) {
     $input = fgets($stdin);

@@ -1,11 +1,17 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect\Message;
 
+use Exception;
 use Peridot\Core\AbstractTest;
 use Peridot\Core\Test;
 
 class TestMessage extends Message
 {
+    /**
+     * @var int
+     */
+    const TEST_PENDING = 2;
+
     /**
      * @var int
      */
@@ -20,14 +26,15 @@ class TestMessage extends Message
      * Write test information to a stream.
      *
      * @param AbstractTest $test
-     * @param $passOrFail
+     * @param int $status - status of the test. 0 for fail, 1 for pass, 2 for pending. -1 means no status
+     * @param Exception|null $exception
      */
-    public function writeTest(AbstractTest $test, $passOrFail, \Exception $exception = null)
+    public function writeTest(AbstractTest $test, $status = -1, Exception $exception = null)
     {
         $data = [
             $this->getTypeChar($test),
             $test->getDescription(),
-            $passOrFail,
+            $status,
             $test->getTitle(),
         ];
 
