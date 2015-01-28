@@ -72,6 +72,24 @@ describe('Message', function () {
         });
     });
 
+    describe('->end()', function () {
+        it('should write data with a terminate signal', function () {
+            $this->message->end('last');
+            $stream = $this->message->getResource();
+            fseek($stream , 0);
+            $content = fread($stream, 128);
+            expect($content)->to->equal("last\nTERMINATE\n");
+        });
+
+        it('should write only a terminate single if content is omitted', function () {
+            $this->message->end();
+            $stream = $this->message->getResource();
+            fseek($stream , 0);
+            $content = fread($stream, 128);
+            expect($content)->to->equal("TERMINATE\n");
+        });
+    });
+
     describe('->getResource()', function() {
         it('should return the underlying resource', function () {
             $message = new Message($this->resource);

@@ -93,6 +93,21 @@ class Message
     }
 
     /**
+     * Write content to the stream and send a signal
+     * to terminate. It is up to the given message to
+     * determine what the end signal is.
+     *
+     * @param $content
+     */
+    public function end($content = '')
+    {
+        if ($content) {
+            $this->write($content);
+        }
+        $this->write($this->getTerminateString());
+    }
+
+    /**
      * Get content.
      *
      * @return string
@@ -128,5 +143,15 @@ class Message
     public function isWritable()
     {
         return $this->writable;
+    }
+
+    /**
+     * Return the string used to represent a terminated write.
+     *
+     * @return string
+     */
+    public function getTerminateString()
+    {
+        return "TERMINATE";
     }
 } 
