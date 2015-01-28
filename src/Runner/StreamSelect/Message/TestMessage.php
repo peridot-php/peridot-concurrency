@@ -38,7 +38,7 @@ class TestMessage extends Message
             $test->getTitle(),
         ];
 
-        if ($exception) {
+        if (!is_null($exception)) {
             $data = array_merge($data, [
                 $exception->getMessage(),
                 $exception->getTraceAsString(),
