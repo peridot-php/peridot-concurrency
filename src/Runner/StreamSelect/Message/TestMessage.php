@@ -23,30 +23,96 @@ class TestMessage extends Message
     const TEST_FAIL = 0;
 
     /**
-     * Write test information to a stream.
+     * The Data to be serialized. Indexes represent specific pieces of the
+     * message.
+     *
+     * 0 - a single character showing type: 's' for suite, 't' for test
+     * 1 - an event name - i.e suite.start, test.pending, etc.
+     * 2 - the test description
+     * 3 - the test title
+     * 4 - the test status
+     * 5 - an exception message if available
+     * 6 - an exception trace as string if available
+     * 7 - the exception class name
+     *
+     * @var array
+     */
+    protected $data;
+
+    /**
+     * @param resource $resource
+     * @param int $chunkSize
+     */
+    public function __construct($resource, $chunkSize = 4096)
+    {
+        parent::__construct($resource, $chunkSize);
+        $this->data = [null, null, null, null, null, null, null, null];
+    }
+
+    /**
+     * Include test information in the message.
      *
      * @param AbstractTest $test
-     * @param int $status - status of the test. 0 for fail, 1 for pass, 2 for pending. -1 means no status
-     * @param Exception|null $exception
+     * @return $this
      */
-    public function writeTest(AbstractTest $test, $status = -1, Exception $exception = null)
+    public function setTest(AbstractTest $test)
     {
-        $data = [
-            $this->getTypeChar($test),
-            $test->getDescription(),
-            $status,
-            $test->getTitle(),
-        ];
+        $this->data[0] = $this->getTypeChar($test);
+        $this->data[2] = $test->getDescription();
+        $this->data[3] = $test->getTitle();
+        return $this;
+    }
 
-        if (!is_null($exception)) {
-            $data = array_merge($data, [
-                $exception->getMessage(),
-                $exception->getTraceAsString(),
-                get_class($exception)
-            ]);
+    /**
+     * Include test exception information in the message.
+     *
+     * @param Exception $exception
+     * @return $this
+     */
+    public function setException(Exception $exception)
+    {
+        $this->data[5] = $exception->getMessage();
+        $this->data[6] = $exception->getTraceAsString();
+        $this->data[7] = get_class($exception);
+        return $this;
+    }
+
+    /**
+     * Include an event name in the message.
+     *
+     * @param string $eventName
+     * @return $this
+     */
+    public function setEvent($eventName)
+    {
+        $this->data[1] = $eventName;
+        return $this;
+    }
+
+    /**
+     * Include the status in the test message.
+     *
+     * @param int $status
+     * @return $this
+     */
+    public function setStatus($status)
+    {
+        $this->data[4] = $status;
+        return $this;
+    }
+
+    /**
+     * Write the test message. If content is supplied it will
+     * be used instead of the internal serialized data structure.
+     *
+     * @param string $content
+     */
+    public function write($content = '')
+    {
+        if (! $content) {
+            $content = serialize($this->data);
         }
-
-        parent::write(serialize($data));
+        parent::write($content);
     }
 
     /**

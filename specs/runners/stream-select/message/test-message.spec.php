@@ -9,29 +9,37 @@ describe('TestMessage', function () {
         $this->message = new TestMessage($this->tmpfile);
     });
 
-    describe('->writeTest()', function () {
+    describe('->write', function () {
         context('when writing a test', function () {
-            it('should write a serialized test message containing type, description, status, and title', function () {
+            it('should write test and status information', function () {
                 $test = new Test('description');
-                $this->message->writeTest($test, TestMessage::TEST_PASS);
+                $this->message
+                    ->setTest($test)
+                    ->setStatus(TestMessage::TEST_PASS)
+                    ->write();
                 fseek($this->tmpfile, 0);
 
                 $content = unserialize(fread($this->tmpfile, 4096));
-                expect($content)->to->loosely->equal(['t', 'description', 1, 'description']);
+                expect($content)->to->loosely->equal(['t',  null, 'description', 'description', 1, null, null, null]);
             });
 
-            it('should include an exception and test title when an exception is given', function () {
-                $suite = new Suite('Parents', function () {});
-                $test = new Test('should have children');
-                $suite->addTest($test);
-                $exception = new Exception('failure');
-                $this->message->writeTest($test, TestMessage::TEST_FAIL, $exception);
+            it('should write exception and event information', function () {
+                $exception = null;
+                try {
+                    throw new Exception('failure');
+                } catch (Exception $e) {
+                    $exception = $e;
+                }
+
+                $this->message
+                    ->setEvent('test.failed')
+                    ->setException($exception)
+                    ->write();
+
                 fseek($this->tmpfile, 0);
 
                 $content = unserialize(fread($this->tmpfile, 4096));
-                expect($content[4])->to->equal('failure');
-                expect($content[5])->to->equal($exception->getTraceAsString());
-                expect($content[6])->to->equal(get_class($exception));
+                expect($content)->to->loosely->equal([null, 'test.failed', null, null, null, $exception->getMessage(), $exception->getTraceAsString(), get_class($exception)]);
             });
         });
     });
