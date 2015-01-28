@@ -31,6 +31,7 @@ use Evenement\EventEmitter;
 use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
 use Peridot\Configuration;
 use Peridot\Core\Suite;
+use Peridot\Core\Test;
 use Peridot\Core\TestResult;
 use Peridot\Runner\Runner;
 use Peridot\Runner\Context;
@@ -52,10 +53,49 @@ $emitter = new EventEmitter();
  * Register events to write messages.
  */
 $emitter->on('suite.start', function (Suite $suite) use ($message) {
-    $message->writeTest($suite);
+    if (! $suite->getDescription()) {
+        return;
+    }
+    $message
+        ->setTest($suite)
+        ->setEvent('suite.start')
+        ->write();
 });
 
-$emitter->on('suite.end')
+$emitter->on('suite.end', function (Suite $suite) use ($message) {
+    if (! $suite->getDescription()) {
+        return;
+    }
+    $message
+        ->setTest($suite)
+        ->setEvent('suite.end')
+        ->write();
+});
+
+$emitter->on('test.passed', function (Test $test) use ($message) {
+    $message
+        ->setTest($test)
+        ->setEvent('test.passed')
+        ->setStatus(TestMessage::TEST_PASS)
+        ->write();
+});
+
+$emitter->on('test.failed', function (Test $test, Exception $e) use ($message) {
+    $message
+        ->setTest($test)
+        ->setEvent('test.failed')
+        ->setStatus(TestMessage::TEST_FAIL)
+        ->setException($e)
+        ->write();
+});
+
+$emitter->on('test.pending', function (Test $test) use ($message) {
+    $message
+        ->setTest($test)
+        ->setEvent('test.pending')
+        ->setStatus(TestMessage::TEST_PENDING)
+        ->write();
+});
 
 while (true) {
     $input = fgets($stdin);
