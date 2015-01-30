@@ -3,6 +3,7 @@ namespace Peridot\Concurrency\Runner\StreamSelect\Message;
 
 use Exception;
 use Peridot\Core\AbstractTest;
+use Peridot\Core\Suite;
 use Peridot\Core\Test;
 
 class TestMessage extends Message
@@ -47,6 +48,7 @@ class TestMessage extends Message
     {
         parent::__construct($resource, $chunkSize);
         $this->data = [null, null, null, null, null, null, null, null];
+        $this->on('data', [$this, 'onData']);
     }
 
     /**
@@ -113,6 +115,24 @@ class TestMessage extends Message
             $content = serialize($this->data);
         }
         parent::write($content);
+    }
+
+    private $buffer = '';
+    public function onData($data)
+    {
+        $this->buffer .= $data;
+        $delimiterPosition = strpos($this->buffer, "\n");
+        while ($delimiterPosition !== false) {
+            $testMessage = substr($this->buffer, 0, $delimiterPosition);
+            $unpacked = unserialize($testMessage);
+
+            $test = $unpacked[0] == 't' ? new Test($unpacked[2]) : new Suite($unpacked[2], function () {
+
+            });
+            $this->emit($unpacked[1], [$test]);
+            $this->buffer = substr($this->buffer, $delimiterPosition + 1);
+            $delimiterPosition = strpos($this->buffer, "\n");
+        }
     }
 
     /**

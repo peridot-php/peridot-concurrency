@@ -45,7 +45,6 @@ $reader = new Reader(new Configuration());
 $configuration = $reader->getConfiguration();
 require_once $configuration->getDsl();
 
-
 $context = Context::getInstance();
 $emitter = new EventEmitter();
 
@@ -106,5 +105,7 @@ while (true) {
     $runner = new Runner($suite, $configuration, $emitter);
     $result = new TestResult($emitter);
     $runner->run($result);
+
+    $message->end();
     $context->clear();
 }
