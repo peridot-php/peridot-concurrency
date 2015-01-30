@@ -69,8 +69,8 @@ class TestMessage extends Message
     public function setTest(AbstractTest $test)
     {
         $this->data[0] = $this->getTypeChar($test);
-        $this->data[2] = $test->getDescription();
-        $this->data[3] = $test->getTitle();
+        $this->data[2] = $this->packString($test->getDescription());
+        $this->data[3] = $this->packString($test->getTitle());
         return $this;
     }
 
@@ -96,7 +96,7 @@ class TestMessage extends Message
      */
     public function setEvent($eventName)
     {
-        $this->data[1] = $eventName;
+        $this->data[1] = $this->packString($eventName);
         return $this;
     }
 
@@ -157,8 +157,10 @@ class TestMessage extends Message
      */
     private function hydrateTest(array $unpacked)
     {
-        $test = $unpacked[0] == 't' ? new Test($unpacked[2]) : new Suite($unpacked[2]);
-        $test->setTitle($unpacked[3]);
+        $description = $this->unpackString($unpacked[2]);
+        $title = $this->unpackString($unpacked[3]);
+        $test = $unpacked[0] == 't' ? new Test($description) : new Suite($description);
+        $test->setTitle($title);
         return $test;
     }
 
@@ -172,7 +174,7 @@ class TestMessage extends Message
     private function emitTest(AbstractTest $test, array $unpacked)
     {
         $args = [$test];
-        $event = $unpacked[1];
+        $event = $this->unpackString($unpacked[1]);
         if ($event == 'test.failed') {
             $exception = new ConcurrencyException($this->unpackString($unpacked[5]));
             $exception
@@ -209,7 +211,9 @@ class TestMessage extends Message
      */
     private function packString($str)
     {
-        return str_replace("\n", "\t", $str);
+        $char = '\u0007';
+        $char = json_decode('"' . $char . '"');
+        return str_replace("\n", $char, $str);
     }
 
     /**
@@ -220,6 +224,8 @@ class TestMessage extends Message
      */
     private function unpackString($str)
     {
-        return str_replace("\t", "\n", $str);
+        $char = '\u0007';
+        $char = json_decode('"' . $char . '"');
+        return str_replace($char, "\n", $str);
     }
 } 

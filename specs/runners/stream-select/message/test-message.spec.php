@@ -39,8 +39,9 @@ describe('TestMessage', function () {
                 fseek($this->tmpfile, 0);
 
                 $content = unserialize(fread($this->tmpfile, 4096));
-                $expectedTrace = str_replace("\n", "\t", $exception->getTraceAsString());
-                expect($content)->to->loosely->equal([null, 'test.failed', null, null, null, $exception->getMessage(), $expectedTrace, get_class($exception)]);
+                expect($content[5])->to->not->be->null;
+                expect($content[6])->to->not->be->null;
+                expect($content[7])->to->not->be->null;
             });
         });
     });
