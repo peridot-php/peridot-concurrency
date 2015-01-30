@@ -39,7 +39,8 @@ describe('TestMessage', function () {
                 fseek($this->tmpfile, 0);
 
                 $content = unserialize(fread($this->tmpfile, 4096));
-                expect($content)->to->loosely->equal([null, 'test.failed', null, null, null, $exception->getMessage(), $exception->getTraceAsString(), get_class($exception)]);
+                $expectedTrace = str_replace("\n", "\t", $exception->getTraceAsString());
+                expect($content)->to->loosely->equal([null, 'test.failed', null, null, null, $exception->getMessage(), $expectedTrace, get_class($exception)]);
             });
         });
     });
@@ -111,6 +112,48 @@ describe('TestMessage', function () {
                 expect($test)->to->not->be->null->and->to->satisfy(function (Test $test) {
                     return $test->getDescription() === 'description';
                 });
+            });
+
+            it('should emit test event with unpacked data', function () {
+                $test = null;
+                $data = [];
+                $this->message->on('test.passed', function ($t, $d) use (&$test, &$data) {
+                    $test = $t;
+                    $data = $d;
+                });
+                $this->message->emit('data', [$this->content]);
+                expect($data)->to->have->length->of->at->least(1);
+            });
+
+            it('should emit exception and title data with event', function () {
+                $suite = new Suite("Parents", function () {});
+                $test = new Test('should have children');
+                $suite->addTest($test);
+                $exception = new RuntimeException('a failure');
+                $tmpfile = tmpfile();
+                $message = new TestMessage($tmpfile);
+                $message
+                    ->setTest($test)
+                    ->setEvent('test.failed')
+                    ->setException($exception)
+                    ->write();
+                fseek($tmpfile, 0);
+                $content = fread($tmpfile, 4096);
+
+                $receivedTest = null;
+                $receivedException = null;
+
+                $message->on('test.failed', function ($t, $e) use (&$receivedTest, &$receivedException) {
+                    $receivedTest = $t;
+                    $receivedException = $e;
+                });
+
+                $message->emit('data', [$content]);
+
+                expect($receivedTest->getDescription())->to->equal('should have children');
+                expect($receivedTest->getTitle())->to->equal('Parents should have children');
+                expect($receivedException->getMessage())->to->equal($exception->getMessage());
+                expect($receivedException->getTraceAsString())->to->equal($exception->getTraceAsString());
             });
         });
 

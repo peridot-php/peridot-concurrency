@@ -2,9 +2,11 @@
 namespace Peridot\Concurrency\Runner\StreamSelect\Message;
 
 use Exception;
+use Peridot\Concurrency\Runner\StreamSelect\Model\Exception as ConcurrencyException;
+use Peridot\Concurrency\Runner\StreamSelect\Model\Suite;
+use Peridot\Concurrency\Runner\StreamSelect\Model\Test;
+use Peridot\Core\Test as CoreTest;
 use Peridot\Core\AbstractTest;
-use Peridot\Core\Suite;
-use Peridot\Core\Test;
 
 class TestMessage extends Message
 {
@@ -41,6 +43,13 @@ class TestMessage extends Message
     protected $data;
 
     /**
+     * A buffer for storing incoming test message data.
+     *
+     * @var string
+     */
+    private $buffer = '';
+
+    /**
      * @param resource $resource
      * @param int $chunkSize
      */
@@ -73,8 +82,8 @@ class TestMessage extends Message
      */
     public function setException(Exception $exception)
     {
-        $this->data[5] = $exception->getMessage();
-        $this->data[6] = $exception->getTraceAsString();
+        $this->data[5] = $this->packString($exception->getMessage());
+        $this->data[6] = $this->packString($exception->getTraceAsString());
         $this->data[7] = get_class($exception);
         return $this;
     }
@@ -117,22 +126,62 @@ class TestMessage extends Message
         parent::write($content);
     }
 
-    private $buffer = '';
+    /**
+     * Handle data received by this message. When complete test messages come in they
+     * will be parsed and emitted. When a complete message is received it relays the event
+     * name that was received and sends a last argument that is the unpacked message.
+     *
+     * @param $data
+     * @return void
+     */
     public function onData($data)
     {
         $this->buffer .= $data;
         $delimiterPosition = strpos($this->buffer, "\n");
+
         while ($delimiterPosition !== false) {
             $testMessage = substr($this->buffer, 0, $delimiterPosition);
             $unpacked = unserialize($testMessage);
-
-            $test = $unpacked[0] == 't' ? new Test($unpacked[2]) : new Suite($unpacked[2], function () {
-
-            });
-            $this->emit($unpacked[1], [$test]);
+            $test = $this->hydrateTest($unpacked);
+            $this->emitTest($test, $unpacked);
             $this->buffer = substr($this->buffer, $delimiterPosition + 1);
             $delimiterPosition = strpos($this->buffer, "\n");
         }
+    }
+
+    /**
+     * Hydrate a test from an unpacked test message.
+     *
+     * @param array $unpacked
+     * @return \Peridot\Core\TestInterface
+     */
+    private function hydrateTest(array $unpacked)
+    {
+        $test = $unpacked[0] == 't' ? new Test($unpacked[2]) : new Suite($unpacked[2]);
+        $test->setTitle($unpacked[3]);
+        return $test;
+    }
+
+    /**
+     * Emit an appropriate test event. If an exception is included in message
+     * data it will be marshaled into an Exception model.
+     *
+     * @param AbstractTest $test
+     * @param array $unpacked
+     */
+    private function emitTest(AbstractTest $test, array $unpacked)
+    {
+        $args = [$test];
+        $event = $unpacked[1];
+        if ($event == 'test.failed') {
+            $exception = new ConcurrencyException($this->unpackString($unpacked[5]));
+            $exception
+                ->setTraceAsString($this->unpackString($unpacked[6]))
+                ->setType($unpacked[7]);
+            $args[] = $exception;
+        }
+        $args[] = $unpacked;
+        $this->emit($event, $args);
     }
 
     /**
@@ -144,10 +193,33 @@ class TestMessage extends Message
      */
     private function getTypeChar(AbstractTest $test)
     {
-        if ($test instanceof Test) {
+        if ($test instanceof CoreTest) {
             return 't';
         }
 
         return 's';
+    }
+
+    /**
+     * Replace new lines with a format that does not conflict with
+     * parsing a test message.
+     *
+     * @param $str
+     * @return string
+     */
+    private function packString($str)
+    {
+        return str_replace("\n", "\t", $str);
+    }
+
+    /**
+     * Replaces new line replacements with an actual new line.
+     *
+     * @param $str
+     * @return string
+     */
+    private function unpackString($str)
+    {
+        return str_replace("\t", "\n", $str);
     }
 } 
