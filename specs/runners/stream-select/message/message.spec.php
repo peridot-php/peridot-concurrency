@@ -42,6 +42,16 @@ describe('Message', function () {
             $this->message->write('hello');
             expect([$this->message, 'receive'])->to->throw('RuntimeException');
         });
+
+        it('should emit an end event when a terminate string is read', function () {
+            $message = null;
+            $this->message->on('end', function ($msg) use (&$message) {
+                $message = $msg;
+            });
+            fwrite($this->resource, 'hello world' . $this->message->getTerminateString());
+            $this->message->receive();
+            expect($message)->to->not->be->null;
+        });
     });
 
     describe('->write()', function () {

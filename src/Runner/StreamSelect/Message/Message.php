@@ -77,6 +77,9 @@ class Message
         while ($content = fread($this->resource, $this->chunkSize)) {
             $this->content .= $content;
             $this->emit('data', [$content]);
+            if (strpos($content, $this->getTerminateString()) !== false) {
+                $this->emit('end', [$this]);
+            }
         }
         $this->offset = ftell($this->resource);
     }
