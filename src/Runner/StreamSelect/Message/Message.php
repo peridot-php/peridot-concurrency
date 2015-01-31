@@ -44,6 +44,11 @@ class Message
     protected $writable = false;
 
     /**
+     * @var StringPacker
+     */
+    protected $stringPacker;
+
+    /**
      * @param resource $resource
      * @param int $chunkSize
      */
@@ -153,5 +158,31 @@ class Message
     public function getTerminateString()
     {
         return "TERMINATE";
+    }
+
+    /**
+     * Get the packer used by this message.
+     *
+     * @return StringPacker
+     */
+    public function getStringPacker()
+    {
+        if (is_null($this->stringPacker)) {
+            $packer = new StringPacker();
+            $this->stringPacker = $packer;
+        }
+        return $this->stringPacker;
+    }
+
+    /**
+     * Set the packer used by this message.
+     *
+     * @param StringPacker $packer
+     * @return $this
+     */
+    public function setStringPacker(StringPacker $packer)
+    {
+        $this->stringPacker = $packer;
+        return $this;
     }
 } 

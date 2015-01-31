@@ -39,8 +39,9 @@ describe('TestMessage', function () {
                 fseek($this->tmpfile, 0);
 
                 $content = unserialize(fread($this->tmpfile, 4096));
+                $packer = $this->message->getStringPacker();
                 expect($content[5])->to->not->be->null;
-                expect($content[6])->to->not->be->null;
+                expect($content[6])->to->equal($packer->packString($exception->getTraceAsString()));
                 expect($content[7])->to->not->be->null;
             });
         });

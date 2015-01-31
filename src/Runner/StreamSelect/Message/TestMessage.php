@@ -68,9 +68,10 @@ class TestMessage extends Message
      */
     public function setTest(AbstractTest $test)
     {
+        $packer = $this->getStringPacker();
         $this->data[0] = $this->getTypeChar($test);
-        $this->data[2] = $this->packString($test->getDescription());
-        $this->data[3] = $this->packString($test->getTitle());
+        $this->data[2] = $packer->packString($test->getDescription());
+        $this->data[3] = $packer->packString($test->getTitle());
         return $this;
     }
 
@@ -82,8 +83,9 @@ class TestMessage extends Message
      */
     public function setException(Exception $exception)
     {
-        $this->data[5] = $this->packString($exception->getMessage());
-        $this->data[6] = $this->packString($exception->getTraceAsString());
+        $packer = $this->getStringPacker();
+        $this->data[5] = $packer->packString($exception->getMessage());
+        $this->data[6] = $packer->packString($exception->getTraceAsString());
         $this->data[7] = get_class($exception);
         return $this;
     }
@@ -96,7 +98,8 @@ class TestMessage extends Message
      */
     public function setEvent($eventName)
     {
-        $this->data[1] = $this->packString($eventName);
+        $packer = $this->getStringPacker();
+        $this->data[1] = $packer->packString($eventName);
         return $this;
     }
 
@@ -157,8 +160,9 @@ class TestMessage extends Message
      */
     private function hydrateTest(array $unpacked)
     {
-        $description = $this->unpackString($unpacked[2]);
-        $title = $this->unpackString($unpacked[3]);
+        $packer = $this->getStringPacker();
+        $description = $packer->unpackString($unpacked[2]);
+        $title = $packer->unpackString($unpacked[3]);
         $test = $unpacked[0] == 't' ? new Test($description) : new Suite($description);
         $test->setTitle($title);
         return $test;
@@ -173,12 +177,13 @@ class TestMessage extends Message
      */
     private function emitTest(AbstractTest $test, array $unpacked)
     {
+        $packer = $this->getStringPacker();
         $args = [$test];
-        $event = $this->unpackString($unpacked[1]);
+        $event = $packer->unpackString($unpacked[1]);
         if ($event == 'test.failed') {
-            $exception = new ConcurrencyException($this->unpackString($unpacked[5]));
+            $exception = new ConcurrencyException($packer->unpackString($unpacked[5]));
             $exception
-                ->setTraceAsString($this->unpackString($unpacked[6]))
+                ->setTraceAsString($packer->unpackString($unpacked[6]))
                 ->setType($unpacked[7]);
             $args[] = $exception;
         }
@@ -200,32 +205,5 @@ class TestMessage extends Message
         }
 
         return 's';
-    }
-
-    /**
-     * Replace new lines with a format that does not conflict with
-     * parsing a test message.
-     *
-     * @param $str
-     * @return string
-     */
-    private function packString($str)
-    {
-        $char = '\u0007';
-        $char = json_decode('"' . $char . '"');
-        return str_replace("\n", $char, $str);
-    }
-
-    /**
-     * Replaces new line replacements with an actual new line.
-     *
-     * @param $str
-     * @return string
-     */
-    private function unpackString($str)
-    {
-        $char = '\u0007';
-        $char = json_decode('"' . $char . '"');
-        return str_replace($char, "\n", $str);
     }
 } 
