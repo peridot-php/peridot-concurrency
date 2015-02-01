@@ -38,4 +38,16 @@ class MessageBroker
     {
         return $this->messages;
     }
+
+    /**
+     * Get all streams belonging to underlying messages.
+     *
+     * @return array
+     */
+    public function getStreams()
+    {
+        return array_map(function (Message $message) {
+            return $message->getResource();
+        }, $this->messages);
+    }
 } 
