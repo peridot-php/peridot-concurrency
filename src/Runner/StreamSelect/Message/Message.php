@@ -1,7 +1,7 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect\Message;
 
-use Evenement\EventEmitterTrait;
+use Evenement\EventEmitter;
 
 /**
  * A ReadableMessage is meant to receive
@@ -9,10 +9,8 @@ use Evenement\EventEmitterTrait;
  *
  * @package Peridot\Concurrency\Runner\StreamSelect\Message
  */
-class Message
+class Message extends EventEmitter
 {
-    use EventEmitterTrait;
-
     /**
      * @var resource
      */
@@ -47,6 +45,11 @@ class Message
      * @var StringPacker
      */
     protected $stringPacker;
+
+    /**
+     * @var MessageBroker
+     */
+    protected $broker;
 
     /**
      * @param resource $resource
@@ -187,5 +190,40 @@ class Message
     {
         $this->stringPacker = $packer;
         return $this;
+    }
+
+    /**
+     * Set the MessageBroker this message belongs to.
+     *
+     * @param MessageBroker $broker
+     */
+    public function setMessageBroker(MessageBroker $broker)
+    {
+        $this->broker = $broker;
+    }
+
+    /**
+     * Get the MessageBroker this message belongs to.
+     *
+     * @return MessageBroker
+     */
+    public function getMessageBroker()
+    {
+        return $this->broker;
+    }
+
+    /**
+     * Emit broadcasts an event from the message, and if the broker
+     * is set on this message, the same event is broadcast on the broker.
+     *
+     * @param $event
+     * @param array $arguments
+     */
+    public function emit($event, array $arguments = [])
+    {
+        parent::emit($event, $arguments);
+        if ($this->broker) {
+            $this->broker->emit($event, $arguments);
+        }
     }
 } 
