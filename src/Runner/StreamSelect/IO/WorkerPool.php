@@ -50,17 +50,19 @@ class WorkerPool implements WorkerPoolInterface
     /**
      * @param Configuration $configuration
      * @param EventEmitterInterface $eventEmitter
+     * @param MessageBroker $broker
      * @param ResourceOpenInterface $resourceOpen
      */
     public function __construct(
         Configuration $configuration,
         EventEmitterInterface $eventEmitter,
+        MessageBroker $broker,
         ResourceOpenInterface $resourceOpen = null
     ) {
         $this->configuration = $configuration;
         $this->eventEmitter = $eventEmitter;
+        $this->broker = $broker;
         $this->resourceOpen = $resourceOpen;
-        $this->broker = new MessageBroker();
         $this->listen();
     }
 
@@ -80,27 +82,8 @@ class WorkerPool implements WorkerPoolInterface
             }
 
             $worker->run(array_shift($this->pending));
-            $this->poll();
+            $this->broker->read();
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return void
-     */
-    public function poll()
-    {
-        $read = $this->getReadStreams();
-        $write = null;
-        $except = null;
-        $modified = stream_select($read, $write, $except, 0, 200000);
-
-        if ($modified === false) {
-            throw new \RuntimeException("stream_select() returned an error");
-        }
-
-        $this->freeStreams($read);
     }
 
     /**
@@ -250,6 +233,21 @@ class WorkerPool implements WorkerPoolInterface
     }
 
     /**
+     * Match a running worker to a message resource and
+     * emit a completed event for that worker.
+     *
+     * @param Message $message
+     */
+    public function onMessageEnd(Message $message)
+    {
+        foreach ($this->running as $worker) {
+            if ($worker->hasStream($message->getResource())) {
+                $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
+            }
+        }
+    }
+
+    /**
      * Set event listeners.
      *
      * @return void
@@ -259,24 +257,6 @@ class WorkerPool implements WorkerPoolInterface
         $this->eventEmitter->on('peridot.concurrency.load', [$this, 'setPending']);
         $this->eventEmitter->on('peridot.concurrency.worker.run', [$this, 'addRunning']);
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
-    }
-
-    /**
-     * Attempts to free workers by matching a modified stream
-     * to the worker that owns it. Emits a completed event that signals
-     * a worker should be freed.
-     *
-     * @param array $modified - an array of modified read streams.
-     * @return void
-     */
-    protected function freeStreams($modified)
-    {
-        foreach ($modified as $stream) {
-            foreach ($this->running as $worker) {
-                if ($worker->hasStream($stream)) {
-                    $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
-                }
-            }
-        }
+        $this->broker->on('end', [$this, 'onMessageEnd']);
     }
 } 

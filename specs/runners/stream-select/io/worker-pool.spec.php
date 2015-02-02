@@ -4,6 +4,8 @@ use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface;
 use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerPool;
 use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
 use Peridot\Concurrency\Configuration;
+use Peridot\Concurrency\Runner\StreamSelect\Message\Message;
+use Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker;
 use Peridot\Configuration as CoreConfig;
 use Evenement\EventEmitter;
 
@@ -13,9 +15,10 @@ describe('WorkerPool', function () {
         $this->configuration = new Configuration($core);
         $this->configuration->setProcesses(2);
         $this->emitter = new EventEmitter();
+        $this->broker = new MessageBroker();
 
         $open = new TmpfileOpen();
-        $this->pool = new WorkerPool($this->configuration, $this->emitter, $open);
+        $this->pool = new WorkerPool($this->configuration, $this->emitter, $this->broker, $open);
     });
 
     beforeEach(function () {
@@ -169,6 +172,24 @@ describe('WorkerPool', function () {
         it('should return true if there are not running workers and some pending tests', function () {
             $this->pool->setPending(['spec.php']);
             expect($this->pool->isWorking())->to->be->true;
+        });
+    });
+
+    context('when a message end event is emitted on the message broker', function () {
+        it('it should emit a peridot.concurrency.worker.completed event for the worker that has the message resource', function () {
+            $worker = new Worker('bin', $this->emitter, new TmpfileOpen());
+            $this->pool->attach($worker);
+            $message = new Message($worker->getOutputStream());
+            $this->broker->addMessage($message);
+
+            $theWorker = null;
+            $this->emitter->on('peridot.concurrency.worker.completed', function ($w) use (&$theWorker) {
+                $theWorker = $w;
+            });
+            $worker->run('some path');
+            $message->emit('end', [$message]);
+
+            expect($theWorker)->to->equal($worker);
         });
     });
 

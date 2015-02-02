@@ -50,4 +50,41 @@ class MessageBroker
             return $message->getResource();
         }, $this->messages);
     }
+
+    /**
+     * Attempt to read from messages.
+     *
+     * @return void
+     */
+    public function read()
+    {
+        $read = $this->getStreams();
+        $write = null;
+        $except = null;
+        $modified = stream_select($read, $write, $except, 0, 200000);
+
+        if ($modified === false) {
+            throw new \RuntimeException("stream_select() returned an error");
+        }
+
+        foreach ($read as $resource) {
+            foreach ($this->messages as $message) {
+                $this->readResource($message, $resource);
+            }
+        }
+    }
+
+    /**
+     * If the given message owns the passed in resource, then
+     * read data on that message.
+     *
+     * @param Message $message
+     * @param resource $resource
+     */
+    protected function readResource(Message $message, $resource)
+    {
+        if ($message->getResource() === $resource) {
+            $message->receive();
+        }
+    }
 } 

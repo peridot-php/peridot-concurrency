@@ -17,13 +17,6 @@ interface WorkerPoolInterface
     public function start();
 
     /**
-     * Poll worker streams for changes.
-     *
-     * @return void
-     */
-    public function poll();
-
-    /**
      * Get the next available worker.
      *
      * @return WorkerInterface|null
