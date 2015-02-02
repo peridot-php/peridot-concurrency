@@ -3,6 +3,9 @@ namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
 use Evenement\EventEmitterInterface;
 use Peridot\Concurrency\Configuration;
+use Peridot\Concurrency\Runner\StreamSelect\Message\Message;
+use Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker;
+use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
 use Peridot\Core\HasEventEmitterTrait;
 
 /**
@@ -40,9 +43,9 @@ class WorkerPool implements WorkerPoolInterface
     protected $resourceOpen;
 
     /**
-     * @var array
+     * @var MessageBroker
      */
-    protected $readStreams = [];
+    protected $broker;
 
     /**
      * @param Configuration $configuration
@@ -57,6 +60,7 @@ class WorkerPool implements WorkerPoolInterface
         $this->configuration = $configuration;
         $this->eventEmitter = $eventEmitter;
         $this->resourceOpen = $resourceOpen;
+        $this->broker = new MessageBroker();
         $this->listen();
     }
 
@@ -151,8 +155,8 @@ class WorkerPool implements WorkerPoolInterface
             $worker->start();
         }
 
-        $this->readStreams[] = $worker->getOutputStream();
-        $this->readStreams[] = $worker->getErrorStream();
+        $this->broker->addMessage(new TestMessage($worker->getOutputStream()));
+        $this->broker->addMessage(new Message($worker->getErrorStream()));
 
         return true;
     }
@@ -174,7 +178,7 @@ class WorkerPool implements WorkerPoolInterface
      */
     public function getReadStreams()
     {
-        return $this->readStreams;
+        return $this->broker->getStreams();
     }
 
     /**
