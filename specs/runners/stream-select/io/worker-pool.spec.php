@@ -43,6 +43,12 @@ describe('WorkerPool', function () {
         });
     });
 
+    describe('->getMessageBroker()', function () {
+        it("it should return the pool's message broker", function () {
+            expect($this->pool->getMessageBroker())->to->equal($this->broker);
+        });
+    });
+
     /**
      * Helper for mocking stream accessors.
      *

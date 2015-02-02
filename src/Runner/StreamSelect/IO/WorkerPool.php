@@ -217,6 +217,16 @@ class WorkerPool implements WorkerPoolInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * @return MessageBroker
+     */
+    public function getMessageBroker()
+    {
+        return $this->broker;
+    }
+
+    /**
      * Frees a worker and removes workers that are not running
      * from the internal collection of running workers.
      *

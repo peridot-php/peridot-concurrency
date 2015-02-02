@@ -91,4 +91,11 @@ interface WorkerPoolInterface
      * @return bool
      */
     public function isWorking();
+
+    /**
+     * Get the MessageBroker used by the pool.
+     *
+     * @return \Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker
+     */
+    public function getMessageBroker();
 }
