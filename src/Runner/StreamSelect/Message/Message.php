@@ -226,4 +226,4 @@ class Message extends EventEmitter
             $this->broker->emit($event, $arguments);
         }
     }
-} 
+}

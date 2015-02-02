@@ -87,4 +87,4 @@ class MessageBroker
             $message->receive();
         }
     }
-} 
+}

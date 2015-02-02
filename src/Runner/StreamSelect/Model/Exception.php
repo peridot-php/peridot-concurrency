@@ -68,4 +68,4 @@ class Exception
     {
         return $this->type;
     }
-} 
+}

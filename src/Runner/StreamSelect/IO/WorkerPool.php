@@ -259,4 +259,4 @@ class WorkerPool implements WorkerPoolInterface
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
         $this->broker->on('end', [$this, 'onMessageEnd']);
     }
-} 
+}

@@ -206,4 +206,4 @@ class TestMessage extends Message
 
         return 's';
     }
-} 
+}

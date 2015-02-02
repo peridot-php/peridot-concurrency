@@ -8,7 +8,7 @@ namespace Peridot\Concurrency\Runner\StreamSelect\Message;
  *
  * @package Peridot\Concurrency\Runner\StreamSelect\Message
  */
-class StringPacker 
+class StringPacker
 {
     /**
      * The delimiter to replace in strings.
@@ -88,4 +88,4 @@ class StringPacker
     {
         return json_decode('"' . $str . '"');
     }
-} 
+}
