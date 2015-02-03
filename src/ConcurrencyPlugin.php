@@ -1,6 +1,9 @@
 <?php
 namespace Peridot\Concurrency;
 
+use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerPool;
+use Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker;
+use Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner;
 use Peridot\Console\Application;
 use Peridot\Console\Environment;
 use Peridot\Console\Command;
@@ -62,6 +65,13 @@ class ConcurrencyPlugin
     public function onPeridotExecute(InputInterface $input)
     {
         $this->input = $input;
+
+        if ($this->isConcurrencyEnabled()) {
+            $broker = new MessageBroker();
+            $pool = new WorkerPool($this->getConfiguration(), $this->emitter, $broker);
+            $runner = new StreamSelectRunner($this->emitter, $pool);
+            $this->getApplication()->setRunner($runner);
+        }
     }
 
     /**

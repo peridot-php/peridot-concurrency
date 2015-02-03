@@ -7,6 +7,7 @@ use Peridot\Core\Suite;
 use Peridot\Configuration;
 use Peridot\Reporter\ReporterFactory;
 use Peridot\Runner\Runner;
+use Prophecy\Argument;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Evenement\EventEmitter;
@@ -26,15 +27,54 @@ describe('ConcurrencyPlugin', function () {
         });
     });
 
-    context('when peridot.execute event is emitted', function () {
+    /**
+     * Helper to ensure configuration and app are in place.
+     */
+    $configure = function () {
+        $this->app = $this->getProphet()->prophesize('Peridot\Console\Application');
+        $this->config = new Configuration();
+        $this->emitter->emit('peridot.configure', [$this->config, $this->app->reveal()]);
+    };
+
+    context('when peridot.execute event is emitted', function () use ($configure) {
+        beforeEach($configure);
+
+        beforeEach(function () {
+            $this->emitter->emit('peridot.start', [$this->environment]);
+        });
+
+        afterEach(function () {
+            $this->getProphet()->checkPredictions();
+        });
+
         it('should store a reference to input object' , function () {
             $input = new StringInput('');
+            $input->bind($this->definition);
             $this->emitter->emit('peridot.execute', [$input]);
             expect($this->plugin->getInput())->to->equal($input);
         });
+
+        it('should set the stream select runner if concurrency is enabled', function () {
+            $input = new StringInput('--concurrent');
+            $input->bind($this->definition);
+            $this->emitter->emit('peridot.execute', [$input]);
+            $type = 'Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner';
+            $this->app->setRunner(Argument::type($type))->shouldHaveBeenCalled();
+        });
+
+        it('should not set the stream select runner if concurrency is disabled', function () {
+            $input = new StringInput('');
+            $input->bind($this->definition);
+            $this->emitter->emit('peridot.execute', [$input]);
+            $type = 'Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner';
+            $this->app->setRunner(Argument::type($type))->shouldNotHaveBeenCalled();
+        });
     });
 
-    context('when peridot.load event is emitted', function () {
+    context('when peridot.load event is emitted', function () use ($configure) {
+
+        beforeEach($configure);
+
         beforeEach(function () {
             $suite = new Suite("suite", function () {});
             $configuration = new Configuration();
@@ -46,7 +86,8 @@ describe('ConcurrencyPlugin', function () {
 
         it('should set the suite loader if conncurrent option is set', function () {
             $this->emitter->emit('peridot.start', [$this->environment]);
-            $input = new StringInput('--concurrent', $this->definition);
+            $input = new StringInput('--concurrent');
+            $input->bind($this->definition);
             $this->emitter->emit('peridot.execute', [$input]);
             $this->emitter->emit('peridot.load', [$this->command, $this->configuration]);
             $loader = $this->command->getLoader();
@@ -64,13 +105,12 @@ describe('ConcurrencyPlugin', function () {
         });
     });
 
-    context('when peridot.configure event is fired', function () {
+    context('when peridot.configure event is fired', function () use ($configure) {
+        beforeEach($configure);
+
         it('should store references to the configuration and application objects', function () {
-            $app = $this->getProphet()->prophesize('Peridot\Console\Application')->reveal();
-            $config = new Configuration();
-            $this->emitter->emit('peridot.configure', [$config, $app]);
-            expect($this->plugin->getConfiguration())->to->equal($config);
-            expect($this->plugin->getApplication())->to->equal($app);
+            expect($this->plugin->getConfiguration())->to->equal($this->config);
+            expect($this->plugin->getApplication())->to->equal($this->app->reveal());
         });
     });
 });
