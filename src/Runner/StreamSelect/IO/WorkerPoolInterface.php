@@ -12,9 +12,10 @@ interface WorkerPoolInterface
      * Starts all workers and sends input to them until none
      * is left. Additionally starts polling of streams for changes.
      *
+     * @param string $command
      * @return void
      */
-    public function start();
+    public function start($command);
 
     /**
      * Get the next available worker.
@@ -27,9 +28,10 @@ interface WorkerPoolInterface
      * Start worker processes, attaching worker processes
      * to fill the number of configured processes.
      *
+     * @param string $command
      * @return void
      */
-    public function startWorkers();
+    public function startWorkers($command);
 
     /**
      * Attach a worker to the WorkerPool and start

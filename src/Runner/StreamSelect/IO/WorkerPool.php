@@ -69,11 +69,12 @@ class WorkerPool implements WorkerPoolInterface
     /**
      * {@inheritdoc}
      *
+     * @param string $command
      * @return void
      */
-    public function start()
+    public function start($command)
     {
-        $this->startWorkers();
+        $this->startWorkers($command);
         while ($this->isWorking()) {
             $worker = $this->getAvailableWorker();
 
@@ -107,14 +108,14 @@ class WorkerPool implements WorkerPoolInterface
      * If any changes are detected, then an
      * event is emitted signaling which worker has completed.
      *
+     * @param string $command
      * @return void
      */
-    public function startWorkers()
+    public function startWorkers($command)
     {
         $processes = $this->configuration->getProcesses();
         for ($i = 0; $i < $processes; $i++) {
-            $exec = __DIR__ . '/select-runner.php';
-            $worker = new Worker("php $exec", $this->eventEmitter, $this->resourceOpen);
+            $worker = new Worker($command, $this->eventEmitter, $this->resourceOpen);
             $this->attach($worker);
         }
         $this->eventEmitter->emit('peridot.concurrency.pool.start-workers', [$this]);
