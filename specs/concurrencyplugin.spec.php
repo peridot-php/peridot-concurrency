@@ -109,7 +109,7 @@ describe('ConcurrencyPlugin', function () {
         beforeEach($configure);
 
         it('should store references to the configuration and application objects', function () {
-            expect($this->plugin->getConfiguration())->to->equal($this->config);
+            expect($this->plugin->getConfiguration())->to->be->an->instanceof('Peridot\Concurrency\Configuration');
             expect($this->plugin->getApplication())->to->equal($this->app->reveal());
         });
     });

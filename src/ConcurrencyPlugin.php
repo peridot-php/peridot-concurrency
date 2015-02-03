@@ -7,7 +7,7 @@ use Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner;
 use Peridot\Console\Application;
 use Peridot\Console\Environment;
 use Peridot\Console\Command;
-use Peridot\Configuration;
+use Peridot\Configuration as CoreConfiguration;
 use Evenement\EventEmitterInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,7 +25,7 @@ class ConcurrencyPlugin
     private $input;
 
     /**
-     * @var \Peridot\Configuration
+     * @var \Peridot\Concurrency\Configuration
      */
     private $configuration;
 
@@ -80,13 +80,13 @@ class ConcurrencyPlugin
      *
      * @return void
      */
-    public function onPeridotLoad(Command $command, Configuration $configuration)
+    public function onPeridotLoad(Command $command)
     {
         if (! $this->isConcurrencyEnabled()) {
             return;
         }
 
-        $loader = new SuiteLoader($configuration->getGrep(), $this->emitter);
+        $loader = new SuiteLoader($this->getConfiguration()->getGrep(), $this->emitter);
         $command->setLoader($loader);
     }
 
@@ -96,9 +96,9 @@ class ConcurrencyPlugin
      * @param Configuration $configuration
      * @param Application $application
      */
-    public function onPeridotConfigure(Configuration $configuration, Application $application)
+    public function onPeridotConfigure(CoreConfiguration $configuration, Application $application)
     {
-        $this->configuration = $configuration;
+        $this->configuration = new Configuration($configuration);
         $this->application = $application;
     }
 
