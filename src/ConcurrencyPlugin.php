@@ -1,6 +1,7 @@
 <?php
 namespace Peridot\Concurrency;
 
+use Peridot\Console\Application;
 use Peridot\Console\Environment;
 use Peridot\Console\Command;
 use Peridot\Configuration;
@@ -21,6 +22,16 @@ class ConcurrencyPlugin
     private $input;
 
     /**
+     * @var \Peridot\Configuration
+     */
+    private $configuration;
+
+    /**
+     * @var \Peridot\Console\Application
+     */
+    private $application;
+
+    /**
      * @param EventEmitterInterface $emitter
      */
     public function __construct(EventEmitterInterface $emitter)
@@ -29,6 +40,7 @@ class ConcurrencyPlugin
         $this->emitter->on('peridot.start', [$this, 'onPeridotStart']);
         $this->emitter->on('peridot.execute', [$this, 'onPeridotExecute']);
         $this->emitter->on('peridot.load', [$this, 'onPeridotLoad']);
+        $this->emitter->on('peridot.configure', [$this, 'onPeridotConfigure']);
     }
 
     /**
@@ -60,12 +72,24 @@ class ConcurrencyPlugin
      */
     public function onPeridotLoad(Command $command, Configuration $configuration)
     {
-        $input = $this->getInput();
-        if (! $input->getOption('concurrent')) {
+        if (! $this->isConcurrencyEnabled()) {
             return;
         }
+
         $loader = new SuiteLoader($configuration->getGrep(), $this->emitter);
         $command->setLoader($loader);
+    }
+
+    /**
+     * Set the configuration and application references.
+     *
+     * @param Configuration $configuration
+     * @param Application $application
+     */
+    public function onPeridotConfigure(Configuration $configuration, Application $application)
+    {
+        $this->configuration = $configuration;
+        $this->application = $application;
     }
 
     /**
@@ -76,5 +100,39 @@ class ConcurrencyPlugin
     public function getInput()
     {
         return $this->input;
+    }
+
+    /**
+     * Return the configuration reference stored by the plugin.
+     *
+     * @return Configuration
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
+    }
+
+    /**
+     * Return the application reference stored by the plugin.
+     *
+     * @return \Peridot\Console\Application
+     */
+    public function getApplication()
+    {
+        return $this->application;
+    }
+
+    /**
+     * Check to see if concurrency is enabled.
+     *
+     * @return bool
+     */
+    private function isConcurrencyEnabled()
+    {
+        $input = $this->getInput();
+        if (! $input->getOption('concurrent')) {
+            return false;
+        }
+        return true;
     }
 }

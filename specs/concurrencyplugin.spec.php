@@ -55,11 +55,22 @@ describe('ConcurrencyPlugin', function () {
 
         it('should not set the suite loader if concurrent options is not set', function () {
             $this->emitter->emit('peridot.start', [$this->environment]);
-            $input = new StringInput('', $this->definition);
+            $input = new StringInput('');
+            $input->bind($this->definition);
             $this->emitter->emit('peridot.execute', [$input]);
             $this->emitter->emit('peridot.load', [$this->command, $this->configuration]);
             $loader = $this->command->getLoader();
             expect($loader)->to->be->an->instanceof('Peridot\Runner\SuiteLoader');
+        });
+    });
+
+    context('when peridot.configure event is fired', function () {
+        it('should store references to the configuration and application objects', function () {
+            $app = $this->getProphet()->prophesize('Peridot\Console\Application')->reveal();
+            $config = new Configuration();
+            $this->emitter->emit('peridot.configure', [$config, $app]);
+            expect($this->plugin->getConfiguration())->to->equal($config);
+            expect($this->plugin->getApplication())->to->equal($app);
         });
     });
 });
