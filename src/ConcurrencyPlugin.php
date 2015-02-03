@@ -65,13 +65,6 @@ class ConcurrencyPlugin
     public function onPeridotExecute(InputInterface $input)
     {
         $this->input = $input;
-
-        if ($this->isConcurrencyEnabled()) {
-            $broker = new MessageBroker();
-            $pool = new WorkerPool($this->getConfiguration(), $this->emitter, $broker);
-            $runner = new StreamSelectRunner($this->emitter, $pool);
-            $this->getApplication()->setRunner($runner);
-        }
     }
 
     /**
@@ -85,6 +78,11 @@ class ConcurrencyPlugin
         if (! $this->isConcurrencyEnabled()) {
             return;
         }
+
+        $broker = new MessageBroker();
+        $pool = new WorkerPool($this->getConfiguration(), $this->emitter, $broker);
+        $runner = new StreamSelectRunner($this->emitter, $pool);
+        $command->setRunner($runner);
 
         $loader = new SuiteLoader($this->getConfiguration()->getGrep(), $this->emitter);
         $command->setLoader($loader);

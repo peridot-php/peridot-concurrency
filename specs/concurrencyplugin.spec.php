@@ -36,9 +36,7 @@ describe('ConcurrencyPlugin', function () {
         $this->emitter->emit('peridot.configure', [$this->config, $this->app->reveal()]);
     };
 
-    context('when peridot.execute event is emitted', function () use ($configure) {
-        beforeEach($configure);
-
+    context('when peridot.execute event is emitted', function () {
         beforeEach(function () {
             $this->emitter->emit('peridot.start', [$this->environment]);
         });
@@ -53,22 +51,6 @@ describe('ConcurrencyPlugin', function () {
             $this->emitter->emit('peridot.execute', [$input]);
             expect($this->plugin->getInput())->to->equal($input);
         });
-
-        it('should set the stream select runner if concurrency is enabled', function () {
-            $input = new StringInput('--concurrent');
-            $input->bind($this->definition);
-            $this->emitter->emit('peridot.execute', [$input]);
-            $type = 'Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner';
-            $this->app->setRunner(Argument::type($type))->shouldHaveBeenCalled();
-        });
-
-        it('should not set the stream select runner if concurrency is disabled', function () {
-            $input = new StringInput('');
-            $input->bind($this->definition);
-            $this->emitter->emit('peridot.execute', [$input]);
-            $type = 'Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner';
-            $this->app->setRunner(Argument::type($type))->shouldNotHaveBeenCalled();
-        });
     });
 
     context('when peridot.load event is emitted', function () use ($configure) {
@@ -82,26 +64,30 @@ describe('ConcurrencyPlugin', function () {
             $factory = new ReporterFactory($configuration, new NullOutput(), $this->emitter);
             $this->command = new Command($runner, $configuration, $factory, $this->emitter);
             $this->configuration = $configuration;
+            $this->emitter->emit('peridot.start', [$this->environment]);
         });
 
-        it('should set the suite loader if conncurrent option is set', function () {
-            $this->emitter->emit('peridot.start', [$this->environment]);
+
+        it('should set the suite loader and runner if conncurrent option is set', function () {
             $input = new StringInput('--concurrent');
             $input->bind($this->definition);
             $this->emitter->emit('peridot.execute', [$input]);
             $this->emitter->emit('peridot.load', [$this->command, $this->configuration]);
             $loader = $this->command->getLoader();
+            $runner = $this->command->getRunner();
             expect($loader)->to->be->an->instanceof('Peridot\Concurrency\SuiteLoader');
+            expect($runner)->to->be->an->instanceof('Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner');
         });
 
-        it('should not set the suite loader if concurrent options is not set', function () {
-            $this->emitter->emit('peridot.start', [$this->environment]);
+        it('should not set the suite loader and runner if concurrent options is not set', function () {
             $input = new StringInput('');
             $input->bind($this->definition);
             $this->emitter->emit('peridot.execute', [$input]);
             $this->emitter->emit('peridot.load', [$this->command, $this->configuration]);
             $loader = $this->command->getLoader();
+            $runner = $this->command->getRunner();
             expect($loader)->to->be->an->instanceof('Peridot\Runner\SuiteLoader');
+            expect($runner)->to->be->an->instanceof('Peridot\Runner\Runner');
         });
     });
 
