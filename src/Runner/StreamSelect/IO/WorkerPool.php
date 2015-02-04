@@ -3,6 +3,7 @@ namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
 use Evenement\EventEmitterInterface;
 use Peridot\Concurrency\Configuration;
+use Peridot\Concurrency\Runner\StreamSelect\Message\ErrorMessage;
 use Peridot\Concurrency\Runner\StreamSelect\Message\Message;
 use Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker;
 use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
@@ -78,11 +79,10 @@ class WorkerPool implements WorkerPoolInterface
         while ($this->isWorking()) {
             $worker = $this->getAvailableWorker();
 
-            if (! $worker) {
-                continue;
+            if ($worker && $this->pending) {
+                $worker->run(array_shift($this->pending));
             }
 
-            $worker->run(array_shift($this->pending));
             $this->broker->read();
         }
     }
@@ -140,7 +140,7 @@ class WorkerPool implements WorkerPoolInterface
         }
 
         $this->broker->addMessage(new TestMessage($worker->getOutputStream()));
-        $this->broker->addMessage(new Message($worker->getErrorStream()));
+        $this->broker->addMessage(new ErrorMessage($worker->getErrorStream()));
 
         return true;
     }

@@ -91,7 +91,7 @@ class StreamSelectRunner implements RunnerInterface
      */
     public function onTestFailed(Test $test, $exception)
     {
-        $this->eventEmitter->emit('test.passed', [$test, $exception]);
+        $this->eventEmitter->emit('test.failed', [$test, $exception]);
     }
 
     /**
@@ -103,6 +103,17 @@ class StreamSelectRunner implements RunnerInterface
     public function onTestPending(Test $test)
     {
         $this->eventEmitter->emit('test.pending', [$test]);
+    }
+
+    /**
+     * Handle errors.
+     *
+     * @param $data
+     */
+    public function onError($data)
+    {
+        print "\nERROR ERROR ERROR! ABORT ABORT ABORT!\n\n\n\n";
+        var_dump($data);
     }
 
     /**
@@ -118,5 +129,6 @@ class StreamSelectRunner implements RunnerInterface
         $broker->on('test.passed', [$this, 'onTestPassed']);
         $broker->on('test.failed', [$this, 'onTestFailed']);
         $broker->on('test.pending', [$this, 'onTestPending']);
+        $broker->on('error', [$this, 'onError']);
     }
 }

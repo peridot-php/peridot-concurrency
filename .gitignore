@@ -1,3 +1,4 @@
 vendor
 composer.lock
 log.txt
+bin/log.txt
