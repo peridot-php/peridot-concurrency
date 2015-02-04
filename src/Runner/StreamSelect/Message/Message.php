@@ -27,11 +27,6 @@ class Message extends EventEmitter
     protected $content;
 
     /**
-     * @var int
-     */
-    protected $offset;
-
-    /**
      * @var bool
      */
     protected $readable = false;
@@ -60,7 +55,6 @@ class Message extends EventEmitter
         $this->resource = $resource;
         $this->chunkSize = $chunkSize;
         $this->content = '';
-        $this->offset = ftell($resource);
     }
 
     /**
@@ -76,7 +70,7 @@ class Message extends EventEmitter
         }
 
         $this->readable = true;
-        fseek($this->resource, $this->offset);
+
         while ($content = fread($this->resource, $this->chunkSize)) {
             $this->content .= $content;
             $this->emit('data', [$content]);
@@ -84,7 +78,7 @@ class Message extends EventEmitter
                 $this->emit('end', [$this]);
             }
         }
-        $this->offset = ftell($this->resource);
+
     }
 
     /**

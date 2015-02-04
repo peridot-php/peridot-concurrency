@@ -10,6 +10,7 @@ describe('Message', function () {
     describe('->receive()', function () {
         it('should read from a stream', function () {
             fwrite($this->resource, "hello world");
+            fseek($this->resource, 0);
             $this->message->receive();
             expect($this->message->getContent())->to->equal('hello world');
         });
@@ -17,6 +18,7 @@ describe('Message', function () {
         it('should read until no more content', function () {
             $message = new Message($this->resource, 1);
             fwrite($this->resource, "hello world");
+            fseek($this->resource, 0);
             $message->receive();
             expect($message->getContent())->to->equal('hello world');
         });
@@ -24,6 +26,7 @@ describe('Message', function () {
         it('should emit a data event when data is received', function() {
             $message = new Message($this->resource, 1);
             fwrite($this->resource, "hello world");
+            fseek($this->resource, 0);
             $content = '';
             $message->on('data', function ($data) use (&$content) {
                 $content .= $data;
@@ -49,6 +52,7 @@ describe('Message', function () {
                 $message = $msg;
             });
             fwrite($this->resource, 'hello world' . $this->message->getTerminateString());
+            fseek($this->resource, 0);
             $this->message->receive();
             expect($message)->to->not->be->null;
         });

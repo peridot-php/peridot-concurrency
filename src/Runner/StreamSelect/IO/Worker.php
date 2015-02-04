@@ -80,7 +80,7 @@ class Worker implements WorkerInterface
 
         $this->process = call_user_func_array(
             $this->resourceOpen,
-            [$this->executable, self::$descriptorspec, $pipes]
+            [$this->executable, self::$descriptorspec, &$pipes]
         );
 
         // make output and error streams non-blocking streams
