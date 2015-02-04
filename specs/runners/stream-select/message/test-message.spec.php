@@ -58,6 +58,7 @@ describe('TestMessage', function () {
                     ->write();
                 fseek($this->tmpfile, 0);
                 $this->content = fread($this->tmpfile, 4096);
+                $this->offset = ftell($this->tmpfile);
             });
 
             it('should emit a test event when a complete passing test is received', function () {
@@ -69,6 +70,13 @@ describe('TestMessage', function () {
                 expect($test)->to->not->be->null->and->to->satisfy(function (Test $test) {
                     return $test->getDescription() === 'description';
                 });
+            });
+
+            it('should not try to serialize the termination string', function () {
+                $this->message->end();
+                fseek($this->tmpfile, $this->offset);
+                $newContent = fread($this->tmpfile, 4096);
+                $this->message->emit('data', [$newContent]);
             });
 
             it('should emit a test event when multiple parts complete a test message', function () {
@@ -97,6 +105,12 @@ describe('TestMessage', function () {
                 expect($test)->to->not->be->null->and->to->satisfy(function (Test $test) {
                     return $test->getDescription() === 'description';
                 });
+            });
+
+            it('should throw an exception if an unrecognized format is given', function () {
+                expect(function () {
+                    $this->message->emit('data', ["booooooom\n"]);
+                })->to->throw('RuntimeException', 'Illegal test message format');
             });
 
             it('should emit a test event even if the leading character is a new line followed by an incomplete message', function () {

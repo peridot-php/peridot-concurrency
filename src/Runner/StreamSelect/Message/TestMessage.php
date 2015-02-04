@@ -139,17 +139,40 @@ class TestMessage extends Message
      */
     public function onData($data)
     {
-        $this->buffer .= $data;
+        $this->buffer .= ltrim($data);
         $delimiterPosition = strpos($this->buffer, "\n");
 
         while ($delimiterPosition !== false) {
             $testMessage = substr($this->buffer, 0, $delimiterPosition);
-            $unpacked = unserialize($testMessage);
+
+            if ($testMessage == $this->getTerminateString()) {
+                break;
+            }
+
+            $unpacked = $this->unpackMessage($testMessage);
             $test = $this->hydrateTest($unpacked);
             $this->emitTest($test, $unpacked);
             $this->buffer = substr($this->buffer, $delimiterPosition + 1);
             $delimiterPosition = strpos($this->buffer, "\n");
         }
+    }
+
+    /**
+     * Unpack the testMessage into an array.
+     *
+     * @param string $testMessage
+     * @throws \RuntimeException
+     * @return array
+     */
+    private function unpackMessage($testMessage)
+    {
+        $unpacked = unserialize($testMessage);
+
+        if (!$unpacked) {
+            throw new \RuntimeException("Illegal test message format");
+        }
+
+        return $unpacked;
     }
 
     /**

@@ -78,7 +78,6 @@ class Message extends EventEmitter
                 $this->emit('end', [$this]);
             }
         }
-
     }
 
     /**
