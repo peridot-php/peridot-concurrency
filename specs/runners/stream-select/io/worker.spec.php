@@ -10,6 +10,18 @@ describe('Worker', function () {
         $this->worker = new Worker('/path/to/bin', $this->emitter, new TmpfileOpen());
     });
 
+    describe('->getId()', function () {
+        it('should always return the same id', function () {
+            $id = $this->worker->getId();
+            expect($this->worker->getId())->to->equal($id);
+        });
+
+        it('should return unique ids', function () {
+            $other = new Worker('/path/to/bin', $this->emitter, new TmpfileOpen());
+            expect($other->getId())->to->not->equal($this->worker->getId());
+        });
+    });
+
     describe('->run()', function () {
         it('should emit a peridot.concurrency.worker.run event', function () {
             $self = null;

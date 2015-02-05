@@ -10,6 +10,13 @@ namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 interface WorkerInterface
 {
     /**
+     * Return a unique id for the worker.
+     *
+     * @return string
+     */
+    public function getId();
+
+    /**
      * Start the worker process.
      *
      * @return void

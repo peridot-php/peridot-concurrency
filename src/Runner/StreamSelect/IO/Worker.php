@@ -34,6 +34,11 @@ class Worker implements WorkerInterface
     protected $started = false;
 
     /**
+     * @var string
+     */
+    protected $id;
+
+    /**
      * @var array
      */
     private $pipes = [];
@@ -67,6 +72,17 @@ class Worker implements WorkerInterface
         $this->executable = $executable;
         $this->eventEmitter = $eventEmitter;
         $this->resourceOpen = $opener ?: new ProcOpen();
+        $this->id = uniqid();
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
     /**
