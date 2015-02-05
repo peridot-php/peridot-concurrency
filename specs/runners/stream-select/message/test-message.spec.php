@@ -19,7 +19,7 @@ describe('TestMessage', function () {
                     ->write();
                 fseek($this->tmpfile, 0);
 
-                $content = unserialize(fread($this->tmpfile, 4096));
+                $content = json_decode(fread($this->tmpfile, 8192));
                 expect($content)->to->loosely->equal(['t',  null, 'description', 'description', 1, null, null, null]);
             });
 
@@ -38,11 +38,12 @@ describe('TestMessage', function () {
 
                 fseek($this->tmpfile, 0);
 
-                $content = unserialize(fread($this->tmpfile, 4096));
+                $read = trim(fread($this->tmpfile, 8192));
+                $content = json_decode($read);
                 $packer = $this->message->getStringPacker();
-                expect($content[5])->to->not->be->null;
+                expect($content[5])->to->not->be->null('message should not be null');
                 expect($content[6])->to->equal($packer->packString($exception->getTraceAsString()));
-                expect($content[7])->to->not->be->null;
+                expect($content[7])->to->not->be->null('type should not be null');
             });
         });
     });
@@ -57,7 +58,7 @@ describe('TestMessage', function () {
                     ->setStatus(TestMessage::TEST_PASS)
                     ->write();
                 fseek($this->tmpfile, 0);
-                $this->content = fread($this->tmpfile, 4096);
+                $this->content = fread($this->tmpfile, 8192);
                 $this->offset = ftell($this->tmpfile);
             });
 
@@ -154,7 +155,7 @@ describe('TestMessage', function () {
                     ->setException($exception)
                     ->write();
                 fseek($tmpfile, 0);
-                $content = fread($tmpfile, 4096);
+                $content = fread($tmpfile, 8192);
 
                 $receivedTest = null;
                 $receivedException = null;

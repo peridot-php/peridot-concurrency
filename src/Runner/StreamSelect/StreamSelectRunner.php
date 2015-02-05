@@ -130,5 +130,8 @@ class StreamSelectRunner implements RunnerInterface
         $broker->on('test.failed', [$this, 'onTestFailed']);
         $broker->on('test.pending', [$this, 'onTestPending']);
         $broker->on('error', [$this, 'onError']);
+        $broker->on('leftovers', function ($content) {
+            file_put_contents(getcwd() . '/log.txt', "$content\n\n\n", FILE_APPEND);
+        });
     }
 }

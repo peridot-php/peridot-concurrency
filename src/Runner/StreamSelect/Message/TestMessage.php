@@ -125,7 +125,7 @@ class TestMessage extends Message
     public function write($content = '')
     {
         if (! $content) {
-            $content = serialize($this->data);
+            $content = json_encode($this->data);
         }
         parent::write($content);
     }
@@ -176,7 +176,7 @@ class TestMessage extends Message
      */
     private function unpackMessage($testMessage)
     {
-        $unpacked = unserialize($testMessage);
+        $unpacked = json_decode($testMessage);
 
         if (!$unpacked) {
             throw new \RuntimeException("Illegal test message format");
