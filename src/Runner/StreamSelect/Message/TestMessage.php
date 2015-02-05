@@ -58,6 +58,7 @@ class TestMessage extends Message
         parent::__construct($resource, $chunkSize);
         $this->data = [null, null, null, null, null, null, null, null];
         $this->on('data', [$this, 'onData']);
+        $this->on('end', [$this, 'onEnd']);
     }
 
     /**
@@ -149,12 +150,21 @@ class TestMessage extends Message
                 break;
             }
 
-            $unpacked = $this->unpackMessage($testMessage);
-            $test = $this->hydrateTest($unpacked);
-            $this->emitTest($test, $unpacked);
+            $this->emitTest($testMessage);
+
             $this->buffer = substr($this->buffer, $delimiterPosition + 1);
             $delimiterPosition = strpos($this->buffer, "\n");
         }
+    }
+
+    /**
+     * Reset the buffer.
+     *
+     * @return void
+     */
+    public function onEnd()
+    {
+        $this->buffer = '';
     }
 
     /**
@@ -195,12 +205,14 @@ class TestMessage extends Message
      * Emit an appropriate test event. If an exception is included in message
      * data it will be marshaled into an Exception model.
      *
-     * @param AbstractTest $test
-     * @param array $unpacked
+     * @param string $testMessage
      */
-    private function emitTest(AbstractTest $test, array $unpacked)
+    private function emitTest($testMessage)
     {
+        $unpacked = $this->unpackMessage($testMessage);
+        $test = $this->hydrateTest($unpacked);
         $packer = $this->getStringPacker();
+
         $args = [$test];
         $event = $packer->unpackString($unpacked[1]);
         if ($event == 'test.failed') {
