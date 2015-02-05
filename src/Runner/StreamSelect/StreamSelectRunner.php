@@ -47,6 +47,7 @@ class StreamSelectRunner implements RunnerInterface
     {
         $command = realpath(__DIR__ . '/../../../bin/select-runner');
         $this->pool->start($command);
+        $this->eventEmitter->emit('runner.end');
     }
 
     /**

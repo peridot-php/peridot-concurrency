@@ -48,6 +48,11 @@ require_once $configuration->getDsl();
 $context = Context::getInstance();
 $emitter = new EventEmitter();
 
+$peridotCallback = include $configuration->getConfigurationFile();
+if (is_callable($peridotCallback)) {
+    call_user_func($peridotCallback, $emitter);
+}
+
 /**
  * Register events to write messages.
  */
