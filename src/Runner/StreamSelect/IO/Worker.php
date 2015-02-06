@@ -110,7 +110,7 @@ class Worker implements WorkerInterface
     /**
      * {@inheritdoc}
      *
-     * @retun bool
+     * @return bool
      */
     public function isStarted()
     {
@@ -194,5 +194,24 @@ class Worker implements WorkerInterface
     public function free()
     {
         $this->running = false;
+    }
+
+    /**
+     * Stop the worker and close any open resources.
+     *
+     * @return void
+     */
+    public function close()
+    {
+        $this->free();
+        $this->started = false;
+        foreach ($this->pipes as $pipe) {
+            fclose($pipe);
+        }
+    }
+
+    public function __destruct()
+    {
+        $this->close();
     }
 }

@@ -50,6 +50,29 @@ describe('Worker', function () {
         });
     });
 
+    describe('->close()', function () {
+        beforeEach(function () {
+            $this->worker->start();
+        });
+
+        it('should close related resources', function () {
+            $this->worker->close();
+            $input = $this->worker->getInputStream();
+            $output = $this->worker->getOutputStream();
+            $error = $this->worker->getErrorStream();
+            expect($input)->to->not->satisfy('is_resource');
+            expect($output)->to->not->satisfy('is_resource');
+            expect($error)->to->not->satisfy('is_resource');
+        });
+
+        it('should stop a running worker', function () {
+            $this->worker->run('/path/to/test.php');
+            $this->worker->close();
+            expect($this->worker->isRunning())->to->be->false;
+            expect($this->worker->isStarted())->to->be->false;
+        });
+    });
+
     describe('->free()', function () {
         it('should make the worker stop running', function () {
             $this->worker->run('/path/to/test.php');
