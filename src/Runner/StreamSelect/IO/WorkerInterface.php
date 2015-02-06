@@ -24,6 +24,13 @@ interface WorkerInterface
     public function start();
 
     /**
+     * Return the process opened by the worker.
+     *
+     * @return resource
+     */
+    public function getProcess();
+
+    /**
      * Return the stream that the process receives input on.
      *
      * @return resource

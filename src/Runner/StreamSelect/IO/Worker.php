@@ -146,6 +146,16 @@ class Worker implements WorkerInterface
      *
      * @return resource
      */
+    public function getProcess()
+    {
+        return $this->process;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return resource
+     */
     public function getInputStream()
     {
         return $this->pipes[0];
@@ -208,10 +218,31 @@ class Worker implements WorkerInterface
         foreach ($this->pipes as $pipe) {
             fclose($pipe);
         }
+
+        $this->closeProcess();
     }
 
     public function __destruct()
     {
         $this->close();
+    }
+
+    /**
+     * Close the process opened by this worker.
+     *
+     * @return void
+     */
+    protected function closeProcess()
+    {
+        if (! is_resource($this->process)) {
+            return;
+        }
+
+        $procCloseFn = 'proc_close';
+        if (!$this->resourceOpen instanceof ProcOpen) {
+            $procCloseFn = 'fclose';
+        }
+
+        call_user_func($procCloseFn, $this->process);
     }
 }

@@ -57,12 +57,16 @@ describe('Worker', function () {
 
         it('should close related resources', function () {
             $this->worker->close();
+
             $input = $this->worker->getInputStream();
             $output = $this->worker->getOutputStream();
             $error = $this->worker->getErrorStream();
+            $process = $this->worker->getProcess();
+
             expect($input)->to->not->satisfy('is_resource');
             expect($output)->to->not->satisfy('is_resource');
             expect($error)->to->not->satisfy('is_resource');
+            expect($process)->to->not->satisfy('is_resource');
         });
 
         it('should stop a running worker', function () {
