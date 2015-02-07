@@ -104,6 +104,7 @@ $emitter->on('test.pending', function (Test $test) use ($message) {
 while (true) {
     $input = fgets($stdin);
     $path = trim($input);
+    $context->setFile($path);
     require $path;
 
     $suite = $context->getCurrentSuite();
