@@ -13,6 +13,7 @@ describe('TestMessage', function () {
         context('when writing a test', function () {
             it('should write test and status information', function () {
                 $test = new Test('description');
+                $test->setFile(__FILE__);
                 $this->message
                     ->setTest($test)
                     ->setStatus(TestMessage::TEST_PASS)
@@ -20,7 +21,7 @@ describe('TestMessage', function () {
                 fseek($this->tmpfile, 0);
 
                 $content = json_decode(fread($this->tmpfile, 8192));
-                expect($content)->to->loosely->equal(['t',  null, 'description', 'description', 1, null, null, null]);
+                expect($content)->to->loosely->equal(['t',  null, 'description', 'description', 1, __FILE__,  null, null, null]);
             });
 
             it('should write exception and event information', function () {
@@ -41,9 +42,9 @@ describe('TestMessage', function () {
                 $read = trim(fread($this->tmpfile, 8192));
                 $content = json_decode($read);
                 $packer = $this->message->getStringPacker();
-                expect($content[5])->to->not->be->null('message should not be null');
-                expect($content[6])->to->equal($packer->packString($exception->getTraceAsString()));
-                expect($content[7])->to->not->be->null('type should not be null');
+                expect($content[6])->to->not->be->null('message should not be null');
+                expect($content[7])->to->equal($packer->packString($exception->getTraceAsString()));
+                expect($content[8])->to->not->be->null('type should not be null');
             });
         });
     });
@@ -52,6 +53,7 @@ describe('TestMessage', function () {
         context('and the data represents a test', function () {
             beforeEach(function () {
                 $test = new Test('description');
+                $test->setFile(__FILE__);
                 $this->message
                     ->setTest($test)
                     ->setEvent('test.passed')
@@ -69,7 +71,7 @@ describe('TestMessage', function () {
                 });
                 $this->message->emit('data', [$this->content]);
                 expect($test)->to->not->be->null->and->to->satisfy(function (Test $test) {
-                    return $test->getDescription() === 'description';
+                    return $test->getDescription() === 'description' && $test->getFile() === __FILE__;
                 });
             });
 

@@ -34,9 +34,10 @@ class TestMessage extends Message
      * 2 - the test description
      * 3 - the test title
      * 4 - the test status
-     * 5 - an exception message if available
-     * 6 - an exception trace as string if available
-     * 7 - the exception class name
+     * 5 - the test path
+     * 6 - an exception message if available
+     * 7 - an exception trace as string if available
+     * 8 - the exception class name
      *
      * @var array
      */
@@ -56,7 +57,7 @@ class TestMessage extends Message
     public function __construct($resource, $chunkSize = 4096)
     {
         parent::__construct($resource, $chunkSize);
-        $this->data = [null, null, null, null, null, null, null, null];
+        $this->data = [null, null, null, null, null, null, null, null, null];
         $this->on('data', [$this, 'onData']);
         $this->on('end', [$this, 'onEnd']);
     }
@@ -73,6 +74,7 @@ class TestMessage extends Message
         $this->data[0] = $this->getTypeChar($test);
         $this->data[2] = $packer->packString($test->getDescription());
         $this->data[3] = $packer->packString($test->getTitle());
+        $this->data[5] = $test->getFile();
         return $this;
     }
 
@@ -85,9 +87,9 @@ class TestMessage extends Message
     public function setException(Exception $exception)
     {
         $packer = $this->getStringPacker();
-        $this->data[5] = $packer->packString($exception->getMessage());
-        $this->data[6] = $packer->packString($exception->getTraceAsString());
-        $this->data[7] = get_class($exception);
+        $this->data[6] = $packer->packString($exception->getMessage());
+        $this->data[7] = $packer->packString($exception->getTraceAsString());
+        $this->data[8] = get_class($exception);
         return $this;
     }
 
@@ -198,6 +200,7 @@ class TestMessage extends Message
         $title = $packer->unpackString($unpacked[3]);
         $test = $unpacked[0] == 't' ? new Test($description) : new Suite($description);
         $test->setTitle($title);
+        $test->setFile($unpacked[5]);
         return $test;
     }
 
@@ -216,10 +219,10 @@ class TestMessage extends Message
         $args = [$test];
         $event = $packer->unpackString($unpacked[1]);
         if ($event == 'test.failed') {
-            $exception = new ConcurrencyException($packer->unpackString($unpacked[5]));
+            $exception = new ConcurrencyException($packer->unpackString($unpacked[6]));
             $exception
-                ->setTraceAsString($packer->unpackString($unpacked[6]))
-                ->setType($unpacked[7]);
+                ->setTraceAsString($packer->unpackString($unpacked[7]))
+                ->setType($unpacked[8]);
             $args[] = $exception;
         }
         $args[] = $unpacked;
