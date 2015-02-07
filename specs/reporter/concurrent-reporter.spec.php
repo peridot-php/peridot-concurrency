@@ -1,0 +1,75 @@
+<?php
+use Evenement\EventEmitter;
+use Peridot\Concurrency\Reporter\ConcurrentReporter;
+use Peridot\Configuration;
+use Peridot\Core\Suite;
+use Peridot\Core\Test;
+use Symfony\Component\Console\Output\BufferedOutput;
+
+describe('ConcurrentReporter', function () {
+    beforeEach(function () {
+        $configuration = new Configuration();
+        $output = new BufferedOutput();
+        $this->emitter = new EventEmitter();
+        $this->reporter = new ConcurrentReporter($configuration, $output, $this->emitter);
+    });
+
+    beforeEach(function () {
+        $suite = new Suite('description', function () {});
+        $suite->setFile(__FILE__);
+        $this->emitter->emit('suite.start', [$suite]);
+
+        $this->test = new Test('description');
+        $this->test->setFile(__FILE__);
+        $this->exception = new \Peridot\Concurrency\Runner\StreamSelect\Model\Exception();
+    });
+
+    context('when the suite.start event is emitted', function () {
+        it('should track the suite', function () {
+            $suites = $this->reporter->getSuites();
+            expect($suites)->to->have->property(__FILE__);
+        });
+    });
+
+    context('when the test.passed event is emitted', function () {
+        beforeEach(function () {
+            $this->emitter->emit('test.passed', [$this->test]);
+        });
+
+        it('should be set the test property of the entry', function () {
+            expect($this->reporter->getSuites())->to->have->deep->property('[' . __FILE__ . '][0][test]', $this->test);
+        });
+
+        it('should have a null value for an exception', function () {
+            expect($this->reporter->getSuites())->to->have->deep->property('[' . __FILE__ . '][0][exception]', null);
+        });
+    });
+
+    context('when the test.pending event is emitted', function () {
+        beforeEach(function () {
+            $this->emitter->emit('test.pending', [$this->test]);
+        });
+
+        it('should set the test and pending status to true for the entry', function () {
+            $entry = $this->reporter->getSuites()[__FILE__][0];
+            expect($entry['test'])->to->equal($this->test);
+        });
+
+        it('should have a null value for an exception', function () {
+            expect($this->reporter->getSuites())->to->have->deep->property('[' . __FILE__ . '][0][exception]', null);
+        });
+    });
+
+    context('when test.failed event is emitted', function () {
+        beforeEach(function () {
+            $this->emitter->emit('test.failed', [$this->test, $this->exception]);
+        });
+
+        it('should store the test and exception on the suite entry', function () {
+            $suites = $this->reporter->getSuites();
+            $entry = $suites[__FILE__][0];
+            expect($entry['test'])->to->equal($this->test);
+            expect($entry['exception'])->to->equal($this->exception);
+        });
+    });
+});
