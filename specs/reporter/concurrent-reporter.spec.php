@@ -1,6 +1,8 @@
 <?php
 use Evenement\EventEmitter;
 use Peridot\Concurrency\Reporter\ConcurrentReporter;
+use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
+use Peridot\Concurrency\Runner\StreamSelect\IO\Worker;
 use Peridot\Configuration;
 use Peridot\Core\Suite;
 use Peridot\Core\Test;
@@ -70,6 +72,21 @@ describe('ConcurrentReporter', function () {
             $entry = $suites[__FILE__][0];
             expect($entry['test'])->to->equal($this->test);
             expect($entry['exception'])->to->equal($this->exception);
+        });
+    });
+
+    context('when a peridot.concurrency.worker.completed event is emitted', function () {
+        it('should associated elapsed time from the worker', function () {
+            $worker = new Worker('/path/to/executable.php', $this->emitter, new TmpfileOpen());
+            $worker->run(__FILE__);
+            $worker->getJobInfo()->end = microtime(true);
+            $this->emitter->emit('test.passed', [$this->test]);
+            $this->emitter->emit('peridot.concurrency.worker.completed', [$worker]);
+
+            $info = $worker->getJobInfo();
+            $time = $this->reporter->getTimeFor(__FILE__);
+
+            expect($time)->to->equal($info->end - $info->start);
         });
     });
 });

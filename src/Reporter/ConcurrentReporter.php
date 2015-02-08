@@ -1,6 +1,7 @@
 <?php
 namespace Peridot\Concurrency\Reporter;
 
+use Peridot\Concurrency\Runner\StreamSelect\IO\Worker;
 use Peridot\Core\AbstractTest;
 use Peridot\Core\Suite;
 use Peridot\Core\Test;
@@ -13,6 +14,8 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     protected $suites = [];
 
+    protected $times = [];
+
     /**
      * {@inheritdoc}
      *
@@ -24,6 +27,7 @@ class ConcurrentReporter extends AbstractBaseReporter
         $this->eventEmitter->on('test.passed', [$this, 'onTestPassed']);
         $this->eventEmitter->on('test.failed', [$this, 'onTestFailed']);
         $this->eventEmitter->on('test.pending', [$this, 'onTestPending']);
+        $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerCompleted']);
     }
 
     /**
@@ -74,6 +78,29 @@ class ConcurrentReporter extends AbstractBaseReporter
             'test' => $test,
             'exception' => null
         ];
+    }
+
+    /**
+     * Track the time it took a worker to complete.
+     *
+     * @param Worker $worker
+     */
+    public function onWorkerCompleted(Worker $worker)
+    {
+        $info = $worker->getJobInfo();
+        $this->times[$info->file] = $info->end - $info->start;
+    }
+
+    /**
+     * Get the time taken to run tests in the file
+     * identified by $path.
+     *
+     * @param $path
+     * @return float
+     */
+    public function getTimeFor($path)
+    {
+        return $this->times[$path];
     }
 
     /**
