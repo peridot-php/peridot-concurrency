@@ -253,6 +253,7 @@ class WorkerPool implements WorkerPoolInterface
     {
         foreach ($this->running as $worker) {
             if ($worker->hasStream($message->getResource())) {
+                $worker->getJobInfo()->end = new \DateTime();
                 $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
             }
         }

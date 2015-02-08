@@ -182,20 +182,28 @@ describe('WorkerPool', function () {
     });
 
     context('when a message end event is emitted on the message broker', function () {
-        it('it should emit a peridot.concurrency.worker.completed event for the worker that has the message resource', function () {
-            $worker = new Worker('bin', $this->emitter, new TmpfileOpen());
-            $this->pool->attach($worker);
-            $message = new Message($worker->getOutputStream());
+        beforeEach(function () {
+            $this->worker = new Worker('bin', $this->emitter, new TmpfileOpen());
+            $this->pool->attach($this->worker);
+            $message = new Message($this->worker->getOutputStream());
             $this->broker->addMessage($message);
 
             $theWorker = null;
             $this->emitter->on('peridot.concurrency.worker.completed', function ($w) use (&$theWorker) {
                 $theWorker = $w;
             });
-            $worker->run('some path');
+            $this->worker->run('some path');
             $message->emit('end', [$message]);
+            $this->completed = $theWorker;
+        });
 
-            expect($theWorker)->to->equal($worker);
+        it('should emit a peridot.concurrency.worker.completed event for the worker that has the message resource', function () {
+            expect($this->completed)->to->equal($this->worker);
+        });
+
+        it('should set the end time of the job info associated with the worker', function () {
+            $info = $this->completed->getJobInfo();
+            expect($info->end)->to->be->an->instanceof('DateTime');
         });
     });
 

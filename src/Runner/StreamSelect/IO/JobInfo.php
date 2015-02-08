@@ -14,6 +14,11 @@ class JobInfo
     public $start;
 
     /**
+     * @var \DateTime
+     */
+    public $end;
+
+    /**
      * @param $file
      * @param \DateTime $start
      */
