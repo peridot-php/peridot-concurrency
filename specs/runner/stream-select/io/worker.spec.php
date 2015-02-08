@@ -41,7 +41,7 @@ describe('Worker', function () {
             $this->worker->run('/path/to/test.php');
             $job = $this->worker->getJobInfo();
             expect($job->file)->to->equal('/path/to/test.php');
-            expect($job->start)->to->loosely->equal(new DateTime());
+            expect($job->start)->to->not->be->null;
         });
     });
 

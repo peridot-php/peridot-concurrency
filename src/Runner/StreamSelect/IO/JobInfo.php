@@ -4,17 +4,23 @@ namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 class JobInfo 
 {
     /**
+     * The file associated with the job.
+     *
      * @var string
      */
     public $file;
 
     /**
-     * @var \DateTime
+     * The start time of the job.
+     *
+     * @var float
      */
     public $start;
 
     /**
-     * @var \DateTime
+     * The end time of the job.
+     *
+     * @var float
      */
     public $end;
 
@@ -22,12 +28,20 @@ class JobInfo
      * @param $file
      * @param \DateTime $start
      */
-    public function __construct($file, \DateTime $start = null)
+    public function __construct($file)
     {
-        if (is_null($start)) {
-            $start = new \DateTime();
-        }
-        $this->start = $start;
         $this->file = $file;
+        $this->start = microtime(true);
     }
-} 
+
+    /**
+     * The time elapsed on the job as a formatted time
+     * string.
+     *
+     * @return string
+     */
+    public function getTimeElapsed()
+    {
+        return \PHP_Timer::secondsToTimeString($this->end - $this->start);
+    }
+}

@@ -201,9 +201,9 @@ describe('WorkerPool', function () {
             expect($this->completed)->to->equal($this->worker);
         });
 
-        it('should set the end time of the job info associated with the worker', function () {
+        it('should set the total job time elapsed', function () {
             $info = $this->completed->getJobInfo();
-            expect($info->end)->to->be->an->instanceof('DateTime');
+            expect($info->end)->to->not->be->null;
         });
     });
 
