@@ -39,6 +39,11 @@ class Worker implements WorkerInterface
     protected $id;
 
     /**
+     * @var JobInfo
+     */
+    protected $jobInfo;
+
+    /**
      * @var array
      */
     private $pipes = [];
@@ -125,6 +130,7 @@ class Worker implements WorkerInterface
      */
     public function run($testPath)
     {
+        $this->jobInfo = new JobInfo($testPath);
         $data = $testPath . "\n";
         fwrite($this->getInputStream(), $data);
         $this->running = true;
@@ -225,6 +231,16 @@ class Worker implements WorkerInterface
     public function __destruct()
     {
         $this->close();
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return JobInfo
+     */
+    public function getJobInfo()
+    {
+        return $this->jobInfo;
     }
 
     /**

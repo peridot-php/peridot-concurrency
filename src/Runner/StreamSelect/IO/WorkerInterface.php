@@ -92,4 +92,11 @@ interface WorkerInterface
      * @return void
      */
     public function free();
+
+    /**
+     * Return the most recent job info associated with this worker.
+     *
+     * @return JobInfo
+     */
+    public function getJobInfo();
 }
