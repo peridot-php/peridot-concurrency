@@ -20,6 +20,16 @@ class ConcurrentReporter extends AbstractBaseReporter
     protected $times = [];
 
     /**
+     * @var int
+     */
+    protected $failures = 0;
+
+    /**
+     * @var int
+     */
+    protected $successes = 0;
+
+    /**
      * {@inheritdoc}
      *
      * @return void
@@ -107,6 +117,15 @@ class ConcurrentReporter extends AbstractBaseReporter
     public function writeTestReport(array $tests)
     {
         $failed = $this->isFailedSuite($tests);
+
+        if ($failed) {
+            $this->failures++;
+        }
+
+        if (!$failed) {
+            $this->successes++;
+        }
+
         $this->writeTestHeader($tests[0]['test']->getFile(), $failed);
         $this->writeTestFailures($tests);
     }
@@ -168,6 +187,26 @@ class ConcurrentReporter extends AbstractBaseReporter
     public function getSuites()
     {
         return $this->suites;
+    }
+
+    /**
+     * Return the number of failed suites.
+     *
+     * @return int
+     */
+    public function getFailureCount()
+    {
+        return $this->failures;
+    }
+
+    /**
+     * Return the number of successful suites.
+     *
+     * @return int
+     */
+    public function getSuccessCount()
+    {
+        return $this->successes;
     }
 
     /**

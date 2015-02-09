@@ -90,6 +90,20 @@ describe('ConcurrentReporter', function () {
         });
     });
 
+    describe('->writeTestReport()', function () {
+        it('should increment the failure count if file contained failures', function () {
+            $tests = [['test' => new Test('description'), 'exception' => new Exception('failed')]];
+            $this->reporter->writeTestReport($tests);
+            expect($this->reporter->getFailureCount())->to->equal(1);
+        });
+
+        it('should increment the success count if file contained no failures', function () {
+            $tests = [['test' => new Test('description'), 'exception' => null]];
+            $this->reporter->writeTestReport($tests);
+            expect($this->reporter->getSuccessCount())->to->equal(1);
+        });
+    });
+
     describe('->writeTestHeader()', function () {
         beforeEach(function() {
             $this->path = '/path/to/test.php';
