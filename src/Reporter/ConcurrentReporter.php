@@ -155,7 +155,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     public function writeTestFailures(array $tests)
     {
-        $failures = array_filter($tests, function($test) {
+        $failures = array_filter($tests, function ($test) {
             return !is_null($test['exception']);
         });
 
