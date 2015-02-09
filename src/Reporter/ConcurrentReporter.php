@@ -41,6 +41,7 @@ class ConcurrentReporter extends AbstractBaseReporter
         $this->eventEmitter->on('test.failed', [$this, 'onTestFailed']);
         $this->eventEmitter->on('test.pending', [$this, 'onTestPending']);
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerCompleted']);
+        $this->eventEmitter->on('peridot.concurrency.pool.complete', [$this, 'footer']);
     }
 
     /**
@@ -168,6 +169,29 @@ class ConcurrentReporter extends AbstractBaseReporter
     }
 
     /**
+     * Output test stats.
+     */
+    public function footer()
+    {
+        if ($this->failures) {
+            $this->output->write($this->getCountString($this->failures, true));
+        }
+
+        if ($this->failures && $this->successes) {
+            $this->output->write(',');
+        }
+
+        $this->output->write($this->getCountString($this->successes, false));
+        $this->output->writeln(sprintf(' (%d total)', $this->failures + $this->successes));
+
+        $totalTime = array_reduce($this->times, function ($r, $i) {
+            return $i + $r;
+        }, 0);
+
+        $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($totalTime)));
+    }
+
+    /**
      * Get the time taken to run tests in the file
      * identified by $path.
      *
@@ -239,5 +263,27 @@ class ConcurrentReporter extends AbstractBaseReporter
         }
 
         return $failed;
+    }
+
+    /**
+     * Get a string for outputting a count of passing
+     * or failing tests.
+     *
+     * @param $num
+     * @param $failed
+     * @return string
+     */
+    private function getCountString($num, $failed)
+    {
+        $label = "$num test";
+        if ($num != 1) {
+            $label .= 's';
+        }
+
+        if ($failed) {
+            return $this->color('error', " $label failed");
+        }
+
+        return $this->color('success', " $label passed");
     }
 }
