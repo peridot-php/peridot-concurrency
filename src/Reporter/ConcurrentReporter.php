@@ -89,6 +89,35 @@ class ConcurrentReporter extends AbstractBaseReporter
     {
         $info = $worker->getJobInfo();
         $this->times[$info->file] = $info->end - $info->start;
+        $this->writeTestReport($this->suites[$info->file]);
+    }
+
+    /**
+     * Writes a test message to output.
+     *
+     * @param array $tests
+     */
+    public function writeTestReport(array $tests)
+    {
+        $failed = $this->isFailedSuite($tests);
+        $this->writeTestHeader($tests[0]['test']->getFile(), $failed);
+    }
+
+    /**
+     * Writes the header for a completed test file.
+     *
+     * @param string $path
+     * @param bool $failed
+     */
+    public function writeTestHeader($path, $failed)
+    {
+        $heading = $this->color('success', 'PASS');
+        if ($failed) {
+            $heading = $this->color('error', 'FAIL');
+        }
+
+        $time = $this->getTimeFor($path);
+        $this->output->writeln($heading . ' ' . $path . ' (' . \PHP_Timer::secondsToTimeString($time) . ')');
     }
 
     /**
@@ -125,5 +154,23 @@ class ConcurrentReporter extends AbstractBaseReporter
         if (! isset($this->suites[$file])) {
             $this->suites[$file] = [];
         }
+    }
+
+    /**
+     * @param array $tests
+     * @return bool
+     */
+    protected function isFailedSuite(array $tests)
+    {
+        $failed = false;
+
+        foreach ($tests as $test) {
+            if ($test['exception']) {
+                $failed = true;
+                break;
+            }
+        }
+
+        return $failed;
     }
 }

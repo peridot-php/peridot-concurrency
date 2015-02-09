@@ -11,9 +11,9 @@ use Symfony\Component\Console\Output\BufferedOutput;
 describe('ConcurrentReporter', function () {
     beforeEach(function () {
         $configuration = new Configuration();
-        $output = new BufferedOutput();
+        $this->output = new BufferedOutput();
         $this->emitter = new EventEmitter();
-        $this->reporter = new ConcurrentReporter($configuration, $output, $this->emitter);
+        $this->reporter = new ConcurrentReporter($configuration, $this->output, $this->emitter);
     });
 
     beforeEach(function () {
@@ -87,6 +87,32 @@ describe('ConcurrentReporter', function () {
             $time = $this->reporter->getTimeFor(__FILE__);
 
             expect($time)->to->equal($info->end - $info->start);
+        });
+    });
+
+    describe('->writeTestHeader()', function () {
+        beforeEach(function() {
+            $this->path = '/path/to/test.php';
+        });
+
+        context('when the test path is passing', function () {
+            it('should write a passing message message', function () {
+                $this->reporter->writeTestHeader($this->path, false);
+                $header = $this->output->fetch();
+                expect($header)->to->have->string('PASS');
+                expect($header)->to->have->string($this->path);
+                expect($header)->to->match('/\([0-9]+(.[0-9]+)? m?s\)/');
+            });
+        });
+
+        context('when the test path is failing', function () {
+            it('should write a passing message message', function () {
+                $this->reporter->writeTestHeader($this->path, true);
+                $header = $this->output->fetch();
+                expect($header)->to->have->string('FAIL');
+                expect($header)->to->have->string($this->path);
+                expect($header)->to->match('/\([0-9]+(.[0-9]+)? m?s\)/');
+            });
         });
     });
 });
