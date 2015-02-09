@@ -9,6 +9,7 @@ use Peridot\Reporter\ReporterFactory;
 use Peridot\Runner\Runner;
 use Prophecy\Argument;
 use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Evenement\EventEmitter;
 
@@ -53,6 +54,18 @@ describe('ConcurrencyPlugin', function () {
         });
     });
 
+    context('when peridot.reporters event is emitted', function () use ($configure) {
+        beforeEach($configure);
+
+        it('should register the concurrency reporter', function () {
+            $factory = new ReporterFactory($this->config, new BufferedOutput(), $this->emitter);
+            $input = new StringInput('');
+            $this->emitter->emit('peridot.reporters', [$input, $factory]);
+            $reporters = $factory->getReporters();
+            expect($reporters)->to->have->property('concurrency');
+        });
+    });
+
     context('when peridot.load event is emitted', function () use ($configure) {
 
         beforeEach($configure);
@@ -67,16 +80,25 @@ describe('ConcurrencyPlugin', function () {
             $this->emitter->emit('peridot.start', [$this->environment]);
         });
 
+        context('and the concurrent option is set', function () {
+            beforeEach(function () {
+                $input = new StringInput('--concurrent');
+                $input->bind($this->definition);
+                $this->emitter->emit('peridot.execute', [$input]);
+                $this->emitter->emit('peridot.load', [$this->command, $this->configuration]);
+            });
 
-        it('should set the suite loader and runner if conncurrent option is set', function () {
-            $input = new StringInput('--concurrent');
-            $input->bind($this->definition);
-            $this->emitter->emit('peridot.execute', [$input]);
-            $this->emitter->emit('peridot.load', [$this->command, $this->configuration]);
-            $loader = $this->command->getLoader();
-            $runner = $this->command->getRunner();
-            expect($loader)->to->be->an->instanceof('Peridot\Concurrency\SuiteLoader');
-            expect($runner)->to->be->an->instanceof('Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner');
+            it('should set the suite loader and runner if concurrent option is set', function () {
+                $loader = $this->command->getLoader();
+                $runner = $this->command->getRunner();
+                expect($loader)->to->be->an->instanceof('Peridot\Concurrency\SuiteLoader');
+                expect($runner)->to->be->an->instanceof('Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner');
+            });
+
+            it('should set the reporter to the concurrency reporter', function () {
+                $reporter = $this->configuration->getReporter();
+                expect($reporter)->to->equal('concurrency');
+            });
         });
 
         it('should not set the suite loader and runner if concurrent options is not set', function () {

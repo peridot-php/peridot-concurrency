@@ -9,6 +9,7 @@ use Peridot\Console\Environment;
 use Peridot\Console\Command;
 use Peridot\Configuration as CoreConfiguration;
 use Evenement\EventEmitterInterface;
+use Peridot\Reporter\ReporterFactory;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -44,6 +45,7 @@ class ConcurrencyPlugin
         $this->emitter->on('peridot.execute', [$this, 'onPeridotExecute']);
         $this->emitter->on('peridot.load', [$this, 'onPeridotLoad']);
         $this->emitter->on('peridot.configure', [$this, 'onPeridotConfigure']);
+        $this->emitter->on('peridot.reporters', [$this, 'onPeridotReporters']);
     }
 
     /**
@@ -73,7 +75,7 @@ class ConcurrencyPlugin
      *
      * @return void
      */
-    public function onPeridotLoad(Command $command)
+    public function onPeridotLoad(Command $command, CoreConfiguration $config)
     {
         if (! $this->isConcurrencyEnabled()) {
             return;
@@ -86,6 +88,8 @@ class ConcurrencyPlugin
 
         $loader = new SuiteLoader($this->getConfiguration()->getGrep(), $this->emitter);
         $command->setLoader($loader);
+
+        $config->setReporter('concurrency');
     }
 
     /**
@@ -98,6 +102,17 @@ class ConcurrencyPlugin
     {
         $this->configuration = new Configuration($configuration);
         $this->application = $application;
+    }
+
+    /**
+     * Register the concurrency reporter.
+     *
+     * @param InputInterface $input
+     * @param ReporterFactory $reporters
+     */
+    public function onPeridotReporters(InputInterface $input, ReporterFactory $reporters)
+    {
+        $reporters->register('concurrency', 'organize files by time to execute', 'Peridot\Concurrency\Reporter\ConcurrencyReporter');
     }
 
     /**
