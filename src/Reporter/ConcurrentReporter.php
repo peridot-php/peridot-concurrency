@@ -14,6 +14,9 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     protected $suites = [];
 
+    /**
+     * @var array
+     */
     protected $times = [];
 
     /**
@@ -101,6 +104,7 @@ class ConcurrentReporter extends AbstractBaseReporter
     {
         $failed = $this->isFailedSuite($tests);
         $this->writeTestHeader($tests[0]['test']->getFile(), $failed);
+        $this->writeTestFailures($tests);
     }
 
     /**
@@ -111,13 +115,33 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     public function writeTestHeader($path, $failed)
     {
-        $heading = $this->color('success', 'PASS');
+        $heading = $this->color('success', ' PASS ');
         if ($failed) {
-            $heading = $this->color('error', 'FAIL');
+            $heading = $this->color('error', ' FAIL ');
         }
 
         $time = $this->getTimeFor($path);
         $this->output->writeln($heading . ' ' . $path . ' (' . \PHP_Timer::secondsToTimeString($time) . ')');
+    }
+
+    /**
+     * Write test failures if any.
+     *
+     * @param array $tests
+     */
+    public function writeTestFailures(array $tests)
+    {
+        $failures = array_filter($tests, function($test) {
+            return !is_null($test['exception']);
+        });
+
+        $failures = array_values($failures);
+        $numFailures = count($failures);
+
+        for ($i = 0; $i < $numFailures; $i++) {
+            $entry = $failures[$i];
+            $this->outputError($i + 1, $entry['test'], $entry['exception']);
+        }
     }
 
     /**

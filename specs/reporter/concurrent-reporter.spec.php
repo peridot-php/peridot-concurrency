@@ -115,4 +115,26 @@ describe('ConcurrentReporter', function () {
             });
         });
     });
+
+    describe('->writeTestFailures()', function () {
+        it('should output nothing for a passing array of tests', function () {
+            $test = new Test('description');
+            $this->reporter->writeTestFailures([['test' => $test, 'exception' => null]]);
+            $content = $this->output->fetch();
+            expect($content)->to->be->empty;
+        });
+
+        it('should output a failure if present', function () {
+            $test = new Test('description');
+            $exception = new Exception('failed');
+            $entry = ['test' => $test, 'exception' => $exception];
+            $this->reporter->writeTestFailures([$entry]);
+            $content = $this->output->fetch();
+            expect($content)->to->have->string(' 1)');
+            expect($content)->to->have->string($exception->getMessage());
+
+            $trace = preg_replace('/^#/m', "      #", $exception->getTraceAsString());
+            expect($content)->to->have->string($trace);
+        });
+    });
 });
