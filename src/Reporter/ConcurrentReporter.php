@@ -41,7 +41,7 @@ class ConcurrentReporter extends AbstractBaseReporter
         $this->eventEmitter->on('test.failed', [$this, 'onTestFailed']);
         $this->eventEmitter->on('test.pending', [$this, 'onTestPending']);
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerCompleted']);
-        $this->eventEmitter->on('peridot.concurrency.pool.complete', [$this, 'footer']);
+        $this->eventEmitter->on('peridot.concurrency.runner.end', [$this, 'onRunnerEnd']);
     }
 
     /**
@@ -170,8 +170,10 @@ class ConcurrentReporter extends AbstractBaseReporter
 
     /**
      * Output test stats.
+     *
+     * @param float $time
      */
-    public function footer()
+    public function onRunnerEnd($time)
     {
         if ($this->failures) {
             $this->output->write($this->getCountString($this->failures, true));
@@ -184,11 +186,7 @@ class ConcurrentReporter extends AbstractBaseReporter
         $this->output->write($this->getCountString($this->successes, false));
         $this->output->writeln(sprintf(' (%d total)', $this->failures + $this->successes));
 
-        $totalTime = array_reduce($this->times, function ($r, $i) {
-            return $i + $r;
-        }, 0);
-
-        $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($totalTime)));
+        $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($time)));
     }
 
     /**

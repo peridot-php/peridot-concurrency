@@ -85,7 +85,6 @@ class WorkerPool implements WorkerPoolInterface
 
             $this->broker->read();
         }
-        $this->eventEmitter->emit('peridot.concurrency.pool.complete');
     }
 
     /**
