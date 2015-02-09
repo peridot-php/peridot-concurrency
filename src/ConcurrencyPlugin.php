@@ -89,7 +89,7 @@ class ConcurrencyPlugin
         $loader = new SuiteLoader($this->getConfiguration()->getGrep(), $this->emitter);
         $command->setLoader($loader);
 
-        $config->setReporter('concurrency');
+        $config->setReporter('concurrent');
     }
 
     /**
@@ -112,7 +112,7 @@ class ConcurrencyPlugin
      */
     public function onPeridotReporters(InputInterface $input, ReporterFactory $reporters)
     {
-        $reporters->register('concurrency', 'organize files by time to execute', 'Peridot\Concurrency\Reporter\ConcurrencyReporter');
+        $reporters->register('concurrent', 'organize files by time to execute', 'Peridot\Concurrency\Reporter\ConcurrentReporter');
     }
 
     /**

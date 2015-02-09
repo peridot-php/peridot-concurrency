@@ -62,7 +62,7 @@ describe('ConcurrencyPlugin', function () {
             $input = new StringInput('');
             $this->emitter->emit('peridot.reporters', [$input, $factory]);
             $reporters = $factory->getReporters();
-            expect($reporters)->to->have->property('concurrency');
+            expect($reporters)->to->have->property('concurrent');
         });
     });
 
@@ -97,7 +97,7 @@ describe('ConcurrencyPlugin', function () {
 
             it('should set the reporter to the concurrency reporter', function () {
                 $reporter = $this->configuration->getReporter();
-                expect($reporter)->to->equal('concurrency');
+                expect($reporter)->to->equal('concurrent');
             });
         });
 

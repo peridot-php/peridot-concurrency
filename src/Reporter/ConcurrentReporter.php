@@ -92,7 +92,11 @@ class ConcurrentReporter extends AbstractBaseReporter
     {
         $info = $worker->getJobInfo();
         $this->times[$info->file] = $info->end - $info->start;
-        $this->writeTestReport($this->suites[$info->file]);
+        $data = $this->suites[$info->file];
+
+        if ($data) {
+            $this->writeTestReport($this->suites[$info->file]);
+        }
     }
 
     /**
