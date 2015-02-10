@@ -170,6 +170,16 @@ class TestMessage extends Message
     }
 
     /**
+     * Return the current buffer of the test message.
+     *
+     * @return string
+     */
+    public function getBuffer()
+    {
+        return $this->buffer;
+    }
+
+    /**
      * Unpack the testMessage into an array.
      *
      * @param string $testMessage

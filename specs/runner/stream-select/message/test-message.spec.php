@@ -75,6 +75,15 @@ describe('TestMessage', function () {
                 });
             });
 
+            it('should clear the buffer when the end of a message is received', function () {
+                $this->message->emit('data', ["some content"]);
+                $buffer = $this->message->getBuffer();
+                expect($buffer)->to->not->be->empty;
+                $this->message->emit('end');
+                $buffer = $this->message->getBuffer();
+                expect($buffer)->to->be->empty;
+            });
+
             it('should not try to serialize the termination string', function () {
                 $this->message->end();
                 fseek($this->tmpfile, $this->offset);
