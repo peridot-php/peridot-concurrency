@@ -1,5 +1,7 @@
 <?php
 use Peridot\Concurrency\Runner\StreamSelect\Message\Message;
+use Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker;
+use Peridot\Concurrency\Runner\StreamSelect\Message\StringPacker;
 
 describe('Message', function () {
     beforeEach(function () {
@@ -108,6 +110,22 @@ describe('Message', function () {
         it('should return the underlying resource', function () {
             $message = new Message($this->resource);
             expect($message->getResource())->to->equal($this->resource);
+        });
+    });
+
+    describe('string packer accessors', function () {
+        it('should allow access to the message string packer', function() {
+            $packer = new StringPacker();
+            $this->message->setStringPacker($packer);
+            expect($this->message->getStringPacker())->to->equal($packer);
+        });
+    });
+
+    describe('broker accessors', function () {
+        it('should allow access to the message broker', function() {
+            $broker = new MessageBroker();
+            $this->message->setMessageBroker($broker);
+            expect($this->message->getMessageBroker())->to->equal($broker);
         });
     });
 });
