@@ -95,6 +95,22 @@ describe('WorkerPool', function () {
         });
     });
 
+    describe('->start()', function () {
+        beforeEach(function() {
+            $open = new TmpfileOpen();
+            $broker = new TestBroker($this->emitter);
+            $this->pool = new WorkerPool($this->configuration, $this->emitter, $broker, $open);
+            $broker->setPool($this->pool);
+        });
+
+        it('should start workers', function () {
+            $this->pool->setPending(['/path/to/thing']);
+            $this->pool->start('command');
+            $processes = $this->configuration->getProcesses();
+            expect($this->pool->getWorkers())->to->have->length($processes);
+        });
+    });
+
     describe('->startWorkers()', function () {
         it('should attach workers for the number of processes', function () {
             $this->pool->startWorkers();
@@ -227,3 +243,44 @@ describe('WorkerPool', function () {
         });
     });
 });
+
+/**
+ * Class TestBroker
+ *
+ * Used for testing the pool's start method.
+ */
+class TestBroker extends MessageBroker
+{
+    /**
+     * @var WorkerPool
+     */
+    private $pool;
+
+    /**
+     * @var EventEmitter
+     */
+    private $emitter;
+
+    public function __construct(EventEmitter $emitter)
+    {
+        $this->emitter = $emitter;
+    }
+
+    public function setPool(WorkerPool $pool)
+    {
+        $this->pool = $pool;
+    }
+
+    /**
+     * This read sets the pending test count to 0
+     * and immediately frees all workers.
+     */
+    public function read()
+    {
+        $this->pool->setPending([]);
+        $workers = $this->pool->getWorkers();
+        foreach ($workers as $worker) {
+            $this->emitter->emit('peridot.concurrency.worker.completed', [$worker]);
+        }
+    }
+}
