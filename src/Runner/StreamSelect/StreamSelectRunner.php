@@ -128,7 +128,7 @@ class StreamSelectRunner implements RunnerInterface
      *
      * @return array
      */
-    public function getError()
+    public function getErrors()
     {
         return $this->errors;
     }

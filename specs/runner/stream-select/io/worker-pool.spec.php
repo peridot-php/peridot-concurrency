@@ -6,6 +6,7 @@ use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
 use Peridot\Concurrency\Configuration;
 use Peridot\Concurrency\Runner\StreamSelect\Message\Message;
 use Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker;
+use Peridot\Concurrency\Test\TestBroker;
 use Peridot\Configuration as CoreConfig;
 use Evenement\EventEmitter;
 
@@ -243,44 +244,3 @@ describe('WorkerPool', function () {
         });
     });
 });
-
-/**
- * Class TestBroker
- *
- * Used for testing the pool's start method.
- */
-class TestBroker extends MessageBroker
-{
-    /**
-     * @var WorkerPool
-     */
-    private $pool;
-
-    /**
-     * @var EventEmitter
-     */
-    private $emitter;
-
-    public function __construct(EventEmitter $emitter)
-    {
-        $this->emitter = $emitter;
-    }
-
-    public function setPool(WorkerPool $pool)
-    {
-        $this->pool = $pool;
-    }
-
-    /**
-     * This read sets the pending test count to 0
-     * and immediately frees all workers.
-     */
-    public function read()
-    {
-        $this->pool->setPending([]);
-        $workers = $this->pool->getWorkers();
-        foreach ($workers as $worker) {
-            $this->emitter->emit('peridot.concurrency.worker.completed', [$worker]);
-        }
-    }
-}
