@@ -90,6 +90,29 @@ describe('ConcurrentReporter', function () {
         });
     });
 
+    context('when a peridot.concurrency.runner.end event is emitted', function () {
+        it('should output a run time', function() {
+            $this->emitter->emit('peridot.concurrency.runner.end', [0, []]);
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('Run time: 0 ms');
+        });
+
+        it('should output error if present', function () {
+            $this->emitter->emit('peridot.concurrency.runner.end', [0, ['FATAL ERROR']]);
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('There was 1 error:');
+            expect($output)->to->have->string('FATAL ERROR');
+        });
+
+        it('should output multiple errors if present', function () {
+            $this->emitter->emit('peridot.concurrency.runner.end', [0, ['FATAL ERROR', 'BAD ERROR']]);
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('There were 2 errors:');
+            expect($output)->to->have->string('FATAL ERROR');
+            expect($output)->to->have->string('BAD ERROR');
+        });
+    });
+
     describe('->writeTestReport()', function () {
         it('should increment the failure count if file contained failures', function () {
             $tests = [['test' => new Test('description'), 'exception' => new Exception('failed')]];

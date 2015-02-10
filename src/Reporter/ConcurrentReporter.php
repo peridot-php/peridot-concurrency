@@ -41,7 +41,8 @@ class ConcurrentReporter extends AbstractBaseReporter
         $this->eventEmitter->on('test.failed', [$this, 'onTestFailed']);
         $this->eventEmitter->on('test.pending', [$this, 'onTestPending']);
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerCompleted']);
-        $this->eventEmitter->on('peridot.concurrency.runner.end', [$this, 'onRunnerEnd']);
+        $this->eventEmitter->on('runner.end', [$this, 'footer']);
+        $this->eventEmitter->on('peridot.concurrency.runner.end', [$this, 'onConcurrentRunnerEnd']);
     }
 
     /**
@@ -175,7 +176,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * @param float $time
      * @param array $errors
      */
-    public function onRunnerEnd($time, $errors)
+    public function onConcurrentRunnerEnd($time, $errors)
     {
         $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($time)));
         $errorCount = count($errors);
@@ -183,7 +184,13 @@ class ConcurrentReporter extends AbstractBaseReporter
             return;
         }
 
-        $this->output->writeln($this->color('error', sprintf('There were %d errors:', $errorCount)));
+        $labels = ['was', 'error'];
+
+        if ($errorCount > 1) {
+            $labels = ['were', 'errors'];
+        }
+
+        $this->output->writeln($this->color('error', sprintf('There %s %d %s:', $labels[0], $errorCount, $labels[1])));
         foreach ($errors as $error) {
             $this->output->writeln($error);
             $this->output->writeln('');
