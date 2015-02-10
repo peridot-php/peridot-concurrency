@@ -113,6 +113,34 @@ describe('ConcurrentReporter', function () {
         });
     });
 
+    context('when a runner.end event is emitted', function () {
+        it('should output pass and failure counts', function () {
+            $test1 = [['test' => new Test('description'), 'exception' => new Exception('failed')]];
+            $this->reporter->writeTestReport($test1);
+            $this->emitter->emit('runner.end');
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('1 test failed, 0 tests passed');
+        });
+
+        it('should output pass only counts', function () {
+            $test1 = [['test' => new Test('description'), 'exception' => null]];
+            $this->reporter->writeTestReport($test1);
+            $this->emitter->emit('runner.end');
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('1 test passed');
+        });
+
+        it('should output test total', function () {
+            $test1 = [['test' => new Test('description'), 'exception' => null]];
+            $test2 = [['test' => new Test('description'), 'exception' => null]];
+            $this->reporter->writeTestReport($test1);
+            $this->reporter->writeTestReport($test2);
+            $this->emitter->emit('runner.end');
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('2 total');
+        });
+    });
+
     describe('->writeTestReport()', function () {
         it('should increment the failure count if file contained failures', function () {
             $tests = [['test' => new Test('description'), 'exception' => new Exception('failed')]];

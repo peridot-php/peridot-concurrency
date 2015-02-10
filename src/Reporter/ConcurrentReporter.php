@@ -204,9 +204,6 @@ class ConcurrentReporter extends AbstractBaseReporter
     {
         if ($this->failures) {
             $this->output->write($this->getCountString($this->failures, true));
-        }
-
-        if ($this->failures && $this->successes) {
             $this->output->write(',');
         }
 
