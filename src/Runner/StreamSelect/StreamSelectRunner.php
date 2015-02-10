@@ -25,6 +25,11 @@ class StreamSelectRunner implements RunnerInterface
     protected $pool;
 
     /**
+     * @var array
+     */
+    protected $errors = [];
+
+    /**
      * @param EventEmitterInterface $emitter
      * @param IO\WorkerPoolInterface $pool
      */
@@ -49,7 +54,7 @@ class StreamSelectRunner implements RunnerInterface
         $command = realpath(__DIR__ . '/../../../bin/select-runner');
         $this->pool->start($command);
         $this->eventEmitter->emit('runner.end');
-        $this->eventEmitter->emit('peridot.concurrency.runner.end', [microtime(true) - $start]);
+        $this->eventEmitter->emit('peridot.concurrency.runner.end', [microtime(true) - $start, $this->errors]);
     }
 
     /**
@@ -115,8 +120,17 @@ class StreamSelectRunner implements RunnerInterface
      */
     public function onError($data)
     {
-        print "\nERROR ERROR ERROR! ABORT ABORT ABORT!\n\n\n\n";
-        var_dump($data);
+        $this->errors[] = $data;
+    }
+
+    /**
+     * Get stored errors.
+     *
+     * @return array
+     */
+    public function getError()
+    {
+        return $this->errors;
     }
 
     /**

@@ -169,11 +169,31 @@ class ConcurrentReporter extends AbstractBaseReporter
     }
 
     /**
-     * Output test stats.
+     * Output test stats. If any errors were written to stderr at any point, then
+     * they will be dumped here.
      *
      * @param float $time
+     * @param array $errors
      */
-    public function onRunnerEnd($time)
+    public function onRunnerEnd($time, $errors)
+    {
+        $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($time)));
+        $errorCount = count($errors);
+        if (! $errorCount) {
+            return;
+        }
+
+        $this->output->writeln($this->color('error', sprintf('There were %d errors:', $errorCount)));
+        foreach ($errors as $error) {
+            $this->output->writeln($error);
+            $this->output->writeln('');
+        }
+    }
+
+    /**
+     * Write a count of failing and passing tests.
+     */
+    public function footer()
     {
         if ($this->failures) {
             $this->output->write($this->getCountString($this->failures, true));
@@ -185,8 +205,6 @@ class ConcurrentReporter extends AbstractBaseReporter
 
         $this->output->write($this->getCountString($this->successes, false));
         $this->output->writeln(sprintf(' (%d total)', $this->failures + $this->successes));
-
-        $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($time)));
     }
 
     /**
