@@ -50,4 +50,19 @@ describe('MessageBroker', function () {
             expect($streams[1])->to->equal($this->stream2);
         });
     });
+
+    describe('->read()', function () {
+
+        it('should throw an exception if streams cant be read', function () {
+            expect([$this->broker, 'read'])->to->throw('RuntimeException');
+        });
+
+        it('should not throw an exception with valid resources', function () {
+            $resource = tmpfile();
+            $message = new Message($resource);
+            $this->broker->addMessage($message);
+            expect([$this->broker, 'read'])->to->not->throw('RuntimeException');
+            fclose($resource);
+        });
+    });
 });
