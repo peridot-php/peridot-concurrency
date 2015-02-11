@@ -196,6 +196,14 @@ describe('ConcurrentReporter', function () {
         });
     });
 
+    describe('->onStreamSelectStart()', function () {
+        it('should use a singluar string if process count is 1', function () {
+            $this->reporter->onStreamSelectStart(1);
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('Starting worker on 1 process');
+        });
+    });
+
     describe('->writeTestFailures()', function () {
         it('should output nothing for a passing array of tests', function () {
             $test = new Test('description');

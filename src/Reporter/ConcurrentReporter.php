@@ -53,7 +53,14 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     public function onStreamSelectStart($numWorkers)
     {
-        $message = $this->color('muted', " Starting workers on $numWorkers processes");
+        $labels = ['worker', 'process'];
+
+        if ($numWorkers > 1) {
+            $labels = ['workers', 'processes'];
+        }
+
+        $string = sprintf(" Starting %s on $numWorkers %s", $labels[0], $labels[1]);
+        $message = $this->color('muted', $string);
         $this->output->writeln($message);
     }
 
