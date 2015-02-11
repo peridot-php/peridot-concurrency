@@ -120,9 +120,10 @@ describe('TestMessage', function () {
             });
 
             it('should throw an exception if an unrecognized format is given', function () {
-                expect(function () {
-                    $this->message->emit('data', ["booooooom\n"]);
-                })->to->throw('RuntimeException', 'Illegal test message format');
+                $message = "booooooom";
+                expect(function () use ($message) {
+                    $this->message->emit('data', [$message . "\n"]);
+                })->to->throw('RuntimeException', "Illegal test message format $message");
             });
 
             it('should emit a test event even if the leading character is a new line followed by an incomplete message', function () {

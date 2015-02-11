@@ -191,7 +191,7 @@ class TestMessage extends Message
         $unpacked = json_decode($testMessage);
 
         if (!$unpacked) {
-            throw new \RuntimeException("Illegal test message format");
+            throw new \RuntimeException("Illegal test message format $testMessage");
         }
 
         return $unpacked;
