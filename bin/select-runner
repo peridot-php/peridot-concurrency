@@ -28,90 +28,15 @@ if (!defined('PERIDOT_STREAM_SELECT_COMPOSER_INSTALL')) {
 require_once PERIDOT_STREAM_SELECT_COMPOSER_INSTALL;
 
 use Evenement\EventEmitter;
+use Peridot\Concurrency\Environment\Environment;
+use Peridot\Concurrency\Runner\StreamSelect\Application;
 use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
-use Peridot\Configuration;
-use Peridot\Core\Suite;
-use Peridot\Core\Test;
-use Peridot\Core\TestResult;
-use Peridot\Runner\Runner;
-use Peridot\Runner\Context;
-use Peridot\Concurrency\Environment\Reader;
 
-$stdin = fopen('php://stdin', 'r');
-$stdout = fopen('php://stdout', 'w');
-$message = new TestMessage($stdout);
+$environment = new Environment(
+    new EventEmitter(),
+    fopen('php://stdin', 'r'),
+    fopen('php://stdout', 'w')
+);
 
-$reader = new Reader(new Configuration());
-$configuration = $reader->getConfiguration();
-require_once $configuration->getDsl();
-
-$context = Context::getInstance();
-$emitter = new EventEmitter();
-
-$peridotCallback = include $configuration->getConfigurationFile();
-if (is_callable($peridotCallback)) {
-    call_user_func($peridotCallback, $emitter);
-}
-
-/**
- * Register events to write messages.
- */
-$emitter->on('suite.start', function (Suite $suite) use ($message) {
-    if (! $suite->getDescription()) {
-        return;
-    }
-    $message
-        ->setTest($suite)
-        ->setEvent('suite.start')
-        ->write();
-});
-
-$emitter->on('suite.end', function (Suite $suite) use ($message) {
-    if (! $suite->getDescription()) {
-        return;
-    }
-    $message
-        ->setTest($suite)
-        ->setEvent('suite.end')
-        ->write();
-});
-
-$emitter->on('test.passed', function (Test $test) use ($message) {
-    $message
-        ->setTest($test)
-        ->setEvent('test.passed')
-        ->setStatus(TestMessage::TEST_PASS)
-        ->write();
-});
-
-$emitter->on('test.failed', function (Test $test, Exception $e) use ($message) {
-    $message
-        ->setTest($test)
-        ->setEvent('test.failed')
-        ->setStatus(TestMessage::TEST_FAIL)
-        ->setException($e)
-        ->write();
-});
-
-$emitter->on('test.pending', function (Test $test) use ($message) {
-    $message
-        ->setTest($test)
-        ->setEvent('test.pending')
-        ->setStatus(TestMessage::TEST_PENDING)
-        ->write();
-});
-
-while (true) {
-    $input = fgets($stdin);
-    $path = trim($input);
-    $context->setFile($path);
-    require $path;
-
-    $suite = $context->getCurrentSuite();
-    $runner = new Runner($suite, $configuration, $emitter);
-    $result = new TestResult($emitter);
-    $runner->run($result);
-
-    $message->end();
-    $context->clear();
-}
+$application = new Application($environment);
+$application->run(new TestMessage($environment->getWriteStream()));
