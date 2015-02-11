@@ -22,9 +22,16 @@ describe('ConcurrencyPlugin', function () {
     });
 
     context('when peridot.start event is emitted', function () {
-        it('should register a --concurrent option', function () {
+        beforeEach(function () {
             $this->emitter->emit('peridot.start', [$this->environment]);
+        });
+
+        it('should register a --concurrent option', function () {
             expect($this->definition->hasOption('concurrent'))->to->be->true;
+        });
+
+        it('should register a --processes option', function () {
+            expect($this->definition->hasOption('processes'))->to->be->true;
         });
     });
 

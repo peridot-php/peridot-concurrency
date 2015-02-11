@@ -57,7 +57,8 @@ class ConcurrencyPlugin
     public function onPeridotStart(Environment $env)
     {
         $definition = $env->getDefinition();
-        $definition->option('concurrent', null, InputOption::VALUE_NONE, "run specs concurrently");
+        $definition->option('concurrent', null, InputOption::VALUE_NONE, 'run specs concurrently');
+        $definition->option('processes', 'p', InputOption::VALUE_REQUIRED, 'number of processes to use');
     }
 
     /**
