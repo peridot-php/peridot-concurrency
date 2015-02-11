@@ -158,6 +158,7 @@ class ConcurrentReporter extends AbstractBaseReporter
         }
 
         $time = $this->getTimeFor($path);
+        $path = preg_replace('{/+}', '/', $path);
         $this->output->writeln($heading . ' ' . $path . ' (' . \PHP_Timer::secondsToTimeString($time) . ')');
     }
 

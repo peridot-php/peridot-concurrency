@@ -168,6 +168,13 @@ describe('ConcurrentReporter', function () {
             $this->path = '/path/to/test.php';
         });
 
+        it('should strip extraneous slashes', function () {
+            $path = '/path//to/test.php';
+            $this->reporter->writeTestHeader($path, false);
+            $header = $this->output->fetch();
+            expect($header)->to->have->string('/path/to/test.php');
+        });
+
         context('when the test path is passing', function () {
             it('should write a passing message message', function () {
                 $this->reporter->writeTestHeader($this->path, false);
