@@ -36,6 +36,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     public function init()
     {
+        $this->eventEmitter->on('peridot.concurrency.stream-select.start', [$this, 'onStreamSelectStart']);
         $this->eventEmitter->on('suite.start', [$this, 'onSuiteStart']);
         $this->eventEmitter->on('test.passed', [$this, 'onTestPassed']);
         $this->eventEmitter->on('test.failed', [$this, 'onTestFailed']);
@@ -43,6 +44,17 @@ class ConcurrentReporter extends AbstractBaseReporter
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerCompleted']);
         $this->eventEmitter->on('runner.end', [$this, 'footer']);
         $this->eventEmitter->on('peridot.concurrency.runner.end', [$this, 'onConcurrentRunnerEnd']);
+    }
+
+    /**
+     * Outputs the number of worker processes being used.
+     *
+     * @param $numWorkers
+     */
+    public function onStreamSelectStart($numWorkers)
+    {
+        $message = $this->color('muted', " Starting workers on $numWorkers processes");
+        $this->output->writeln($message);
     }
 
     /**

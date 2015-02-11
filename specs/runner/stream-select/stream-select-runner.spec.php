@@ -1,5 +1,7 @@
 <?php
 use Evenement\EventEmitter;
+use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
+use Peridot\Concurrency\Runner\StreamSelect\IO\Worker;
 use Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner;
 use Peridot\Concurrency\Test\TestBroker;
 use Peridot\Core\Suite;
@@ -13,6 +15,7 @@ describe('StreamSelectRunner', function () {
         $this->emitter = new EventEmitter();
         $this->broker = new TestBroker($this->emitter);
         $this->pool->getMessageBroker()->willReturn($this->broker);
+        $this->pool->getWorkers()->willReturn([new Worker('exec', $this->emitter, new TmpfileOpen())]);
         $this->runner = new StreamSelectRunner($this->emitter, $this->pool->reveal());
     });
 
@@ -104,6 +107,17 @@ describe('StreamSelectRunner', function () {
             $this->broker->emit('error', ['error!']);
             $errors = $this->runner->getErrors();
             expect($errors)->to->contain('error!');
+        });
+    });
+
+    context('when a peridot.concurrency.pool.start-workers event is emitted', function () {
+        it('should emit a peridot.concurrency.stream-select.start event with a count', function () {
+            $count = 0;
+            $this->emitter->on('peridot.concurrency.stream-select.start', function ($c) use (&$count) {
+                $count = $c;
+            });
+            $this->emitter->emit('peridot.concurrency.pool.start-workers', [$this->pool]);
+            expect($count)->to->equal(1);
         });
     });
 });

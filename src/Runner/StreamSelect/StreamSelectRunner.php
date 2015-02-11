@@ -1,6 +1,7 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect;
 
+use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerPoolInterface;
 use Peridot\Core\HasEventEmitterTrait;
 use Peridot\Core\Suite;
 use Peridot\Core\Test;
@@ -134,12 +135,25 @@ class StreamSelectRunner implements RunnerInterface
     }
 
     /**
+     * Listen for start of workers.
+     *
+     * @param array $workers
+     */
+    public function onWorkersStart(WorkerPoolInterface $pool)
+    {
+        $workers = $pool->getWorkers();
+        $count = sizeof($workers);
+        $this->eventEmitter->emit('peridot.concurrency.stream-select.start', [$count]);
+    }
+
+    /**
      * Register event listeners.
      *
      * @return void
      */
     protected function listen()
     {
+        $this->eventEmitter->on('peridot.concurrency.pool.start-workers', [$this, 'onWorkersStart']);
         $broker = $this->pool->getMessageBroker();
         $broker->on('suite.start', [$this, 'onSuiteStart']);
         $broker->on('suite.end', [$this, 'onSuiteEnd']);

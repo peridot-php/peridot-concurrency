@@ -141,6 +141,14 @@ describe('ConcurrentReporter', function () {
         });
     });
 
+    context('when a peridot.concurrency.stream-select.start evenet is emitted', function () {
+        it('should output a count of processes', function () {
+            $this->emitter->emit('peridot.concurrency.stream-select.start', [4]);
+            $output = $this->output->fetch();
+            expect($output)->to->have->string('Starting workers on 4 processes');
+        });
+    });
+
     describe('->writeTestReport()', function () {
         it('should increment the failure count if file contained failures', function () {
             $tests = [['test' => new Test('description'), 'exception' => new Exception('failed')]];
