@@ -89,7 +89,7 @@ describe('ConcurrencyPlugin', function () {
 
         context('and the concurrent option is set', function () {
             beforeEach(function () {
-                $input = new StringInput('--concurrent');
+                $input = new StringInput('--concurrent --processes 4');
                 $input->bind($this->definition);
                 $this->emitter->emit('peridot.execute', [$input]);
                 $this->emitter->emit('peridot.load', [$this->command, $this->configuration]);
@@ -105,6 +105,11 @@ describe('ConcurrencyPlugin', function () {
             it('should set the reporter to the concurrency reporter', function () {
                 $reporter = $this->configuration->getReporter();
                 expect($reporter)->to->equal('concurrent');
+            });
+
+            it('should set configured processes on the concurrency config', function () {
+                $configuration = $this->plugin->getConfiguration();
+                expect($configuration->getProcesses())->to->equal(4);
             });
         });
 

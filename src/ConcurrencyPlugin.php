@@ -82,14 +82,13 @@ class ConcurrencyPlugin
             return;
         }
 
-        $broker = new MessageBroker();
-        $pool = new WorkerPool($this->getConfiguration(), $this->emitter, $broker);
-        $runner = new StreamSelectRunner($this->emitter, $pool);
-        $command->setRunner($runner);
+        $processes = $this->getInput()->getOption('processes');
 
-        $loader = new SuiteLoader($this->getConfiguration()->getGrep(), $this->emitter);
-        $command->setLoader($loader);
+        if ($processes) {
+            $this->getConfiguration()->setProcesses((int) $processes);
+        }
 
+        $this->configureCommand($command);
         $config->setReporter('concurrent');
     }
 
@@ -158,5 +157,22 @@ class ConcurrencyPlugin
             return false;
         }
         return true;
+    }
+
+    /**
+     * Configure the peridot command for concurrency.
+     *
+     * @param Command $command
+     * @return void
+     */
+    protected function configureCommand(Command $command)
+    {
+        $broker = new MessageBroker();
+        $pool = new WorkerPool($this->getConfiguration(), $this->emitter, $broker);
+        $runner = new StreamSelectRunner($this->emitter, $pool);
+        $command->setRunner($runner);
+
+        $loader = new SuiteLoader($this->getConfiguration()->getGrep(), $this->emitter);
+        $command->setLoader($loader);
     }
 }
