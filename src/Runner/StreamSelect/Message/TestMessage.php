@@ -166,7 +166,7 @@ class TestMessage extends Message
      */
     public function onEnd()
     {
-        $this->buffer = '';
+        $this->clearBuffer();
     }
 
     /**
@@ -177,6 +177,16 @@ class TestMessage extends Message
     public function getBuffer()
     {
         return $this->buffer;
+    }
+
+    /**
+     * Clear the message buffer;
+     *
+     * @return void
+     */
+    public function clearBuffer()
+    {
+        $this->buffer = '';
     }
 
     /**
@@ -191,7 +201,9 @@ class TestMessage extends Message
         $unpacked = json_decode($testMessage);
 
         if (!$unpacked) {
-            throw new \RuntimeException("Illegal test message format $testMessage");
+            $this->emit('error', ["Illegal message format: $testMessage"]);
+            $this->clearBuffer();
+            return [];
         }
 
         return $unpacked;

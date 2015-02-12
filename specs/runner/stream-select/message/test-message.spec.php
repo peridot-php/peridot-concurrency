@@ -119,11 +119,23 @@ describe('TestMessage', function () {
                 });
             });
 
-            it('should throw an exception if an unrecognized format is given', function () {
+            it('should emit an error and clear the buffer if an unrecognized format is given', function () {
                 $message = "booooooom";
-                expect(function () use ($message) {
-                    $this->message->emit('data', [$message . "\n"]);
-                })->to->throw('RuntimeException', "Illegal test message format $message");
+                $error = null;
+                $reference = null;
+
+                $this->message->on('error', function ($e) use (&$error) {
+                    $error = $e;
+                });
+
+                $this->message->on('end', function ($m) use (&$reference) {
+                    $reference = $m;
+                });
+
+                $this->message->emit('data', [$message . "\n"]);
+
+                expect($error)->to->have->string($message);
+                expect($this->message->getBuffer())->to->be->empty;
             });
 
             it('should emit a test event even if the leading character is a new line followed by an incomplete message', function () {
