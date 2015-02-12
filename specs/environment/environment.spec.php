@@ -36,11 +36,11 @@ describe('Environment', function () {
 
     describe('->load()', function () {
         beforeEach(function () {
-            $configuration = new Configuration();
-            $configuration->setDsl(__DIR__ . '/../../fixtures/environment/dsl.php');
-            $configuration->setConfigurationFile(__DIR__ . '/../../fixtures/environment/peridot.php');
+            $this->configuration = new Configuration();
+            $this->configuration->setDsl(__DIR__ . '/../../fixtures/environment/dsl.php');
+            $this->configuration->setConfigurationFile(__DIR__ . '/../../fixtures/environment/peridot.php');
             $this->reader = $this->getProphet()->prophesize('Peridot\Concurrency\Environment\ReaderInterface');
-            $this->reader->getConfiguration()->willReturn($configuration);
+            $this->reader->getConfiguration()->willReturn($this->configuration);
         });
 
         it('should include the configuration dsl', function () {
@@ -56,6 +56,11 @@ describe('Environment', function () {
             });
             $this->environment->load($this->reader->reveal());
             expect($loaded)->to->be->true;
+        });
+
+        it('should populate configuration object', function () {
+            $this->environment->load($this->reader->reveal());
+            expect($this->environment->getConfiguration())->to->equal($this->configuration);
         });
     });
 });

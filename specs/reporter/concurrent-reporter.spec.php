@@ -111,6 +111,12 @@ describe('ConcurrentReporter', function () {
             expect($output)->to->have->string('FATAL ERROR');
             expect($output)->to->have->string('BAD ERROR');
         });
+
+        it('should output nothing if there are no errors', function () {
+            $this->emitter->emit('peridot.concurrency.runner.end', [[]]);
+            $output = $this->output->fetch();
+            expect($output)->to->not->match('/There were [\d]+ error/');
+        });
     });
 
     context('when a runner.end event is emitted', function () {
@@ -141,7 +147,7 @@ describe('ConcurrentReporter', function () {
         });
     });
 
-    context('when a peridot.concurrency.stream-select.start evenet is emitted', function () {
+    context('when a peridot.concurrency.stream-select.start event is emitted', function () {
         it('should output a count of processes', function () {
             $this->emitter->emit('peridot.concurrency.stream-select.start', [4]);
             $output = $this->output->fetch();
