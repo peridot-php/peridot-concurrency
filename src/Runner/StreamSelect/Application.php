@@ -3,6 +3,7 @@ namespace Peridot\Concurrency\Runner\StreamSelect;
 
 use Evenement\EventEmitterInterface;
 use Peridot\Concurrency\Environment\Environment;
+use Peridot\Concurrency\Environment\ReaderInterface;
 use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
 use Peridot\Core\Suite;
 use Peridot\Core\Test;
@@ -24,26 +25,34 @@ class Application
     protected $environment;
 
     /**
+     * @var ReaderInterface
+     */
+    protected $reader;
+
+    /**
      * @var TestMessage
      */
     protected $message;
 
     /**
      * @param Environment $environment
+     * @param ReaderInterface $reader
      */
-    public function __construct(Environment $environment)
+    public function __construct(Environment $environment, ReaderInterface $reader)
     {
         $this->environment = $environment;
+        $this->reader = $reader;
     }
 
     /**
      * Run the application.
      *
      * @param TestMessage $message
+     * @param ReaderInterface $reader
      */
     public function run(TestMessage $message)
     {
-        $this->environment->load();
+        $this->environment->load($this->reader);
         $this->message = $message;
         $this->listen($this->environment->getEventEmitter());
         $context = Context::getInstance();

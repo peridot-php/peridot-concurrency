@@ -41,9 +41,8 @@ class Environment
      *
      * @return void
      */
-    public function load()
+    public function load(ReaderInterface $reader)
     {
-        $reader = new Reader(new Configuration());
         $this->configuration = $reader->getConfiguration();
         require_once $this->configuration->getDsl();
 

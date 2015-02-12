@@ -8,7 +8,7 @@ use Peridot\Configuration;
  *
  * @package Peridot\Concurrency\Environment
  */
-class Reader
+class Reader implements ReaderInterface
 {
     /**
      * @var Configuration
@@ -30,8 +30,7 @@ class Reader
     }
 
     /**
-     * Returns the configuration object populated by
-     * peridot environment variables.
+     * {@inheritdoc}
      *
      * @return Configuration
      */
