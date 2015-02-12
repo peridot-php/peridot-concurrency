@@ -30,7 +30,8 @@ require_once PERIDOT_STREAM_SELECT_COMPOSER_INSTALL;
 use Evenement\EventEmitter;
 use Peridot\Concurrency\Environment\Environment;
 use Peridot\Concurrency\Environment\Reader;
-use Peridot\Concurrency\Runner\StreamSelect\Application;
+use Peridot\Concurrency\Runner\StreamSelect\Application\Application;
+use Peridot\Concurrency\Runner\StreamSelect\Application\RunnerLooper;
 use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
 use Peridot\Configuration;
 
@@ -40,5 +41,9 @@ $environment = new Environment(
     fopen('php://stdout', 'w')
 );
 
-$application = new Application($environment, new Reader(new Configuration()));
+$application = new Application(
+    $environment,
+    new Reader(new Configuration()),
+    new RunnerLooper()
+);
 $application->run(new TestMessage($environment->getWriteStream()));

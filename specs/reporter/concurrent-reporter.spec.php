@@ -98,14 +98,14 @@ describe('ConcurrentReporter', function () {
         });
 
         it('should output error if present', function () {
-            $this->emitter->emit('peridot.concurrency.runner.end', [0, ['FATAL ERROR']]);
+            $this->emitter->emit('peridot.concurrency.runner.end', [['FATAL ERROR']]);
             $output = $this->output->fetch();
             expect($output)->to->have->string('There was 1 error:');
             expect($output)->to->have->string('FATAL ERROR');
         });
 
         it('should output multiple errors if present', function () {
-            $this->emitter->emit('peridot.concurrency.runner.end', [0, ['FATAL ERROR', 'BAD ERROR']]);
+            $this->emitter->emit('peridot.concurrency.runner.end', [['FATAL ERROR', 'BAD ERROR']]);
             $output = $this->output->fetch();
             expect($output)->to->have->string('There were 2 errors:');
             expect($output)->to->have->string('FATAL ERROR');
@@ -117,7 +117,7 @@ describe('ConcurrentReporter', function () {
         it('should output pass and failure counts', function () {
             $test1 = [['test' => new Test('description'), 'exception' => new Exception('failed')]];
             $this->reporter->writeTestReport($test1);
-            $this->emitter->emit('runner.end');
+            $this->emitter->emit('runner.end', [0]);
             $output = $this->output->fetch();
             expect($output)->to->have->string('1 test failed, 0 tests passed');
         });
@@ -125,7 +125,7 @@ describe('ConcurrentReporter', function () {
         it('should output pass only counts', function () {
             $test1 = [['test' => new Test('description'), 'exception' => null]];
             $this->reporter->writeTestReport($test1);
-            $this->emitter->emit('runner.end');
+            $this->emitter->emit('runner.end', [0]);
             $output = $this->output->fetch();
             expect($output)->to->have->string('1 test passed');
         });
@@ -135,7 +135,7 @@ describe('ConcurrentReporter', function () {
             $test2 = [['test' => new Test('description'), 'exception' => null]];
             $this->reporter->writeTestReport($test1);
             $this->reporter->writeTestReport($test2);
-            $this->emitter->emit('runner.end');
+            $this->emitter->emit('runner.end', [0]);
             $output = $this->output->fetch();
             expect($output)->to->have->string('2 total');
         });

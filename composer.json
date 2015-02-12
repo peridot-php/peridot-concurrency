@@ -9,10 +9,10 @@
         }
     ],
     "require": {
-        "peridot-php/peridot": "~1.12"
+        "peridot-php/peridot": "~1.13"
     },
     "require-dev": {
-        "peridot-php/leo": "~1.0",
+        "peridot-php/leo": "~1.3.1",
         "peridot-php/peridot-prophecy-plugin": "~1.1",
         "peridot-php/peridot-dot-reporter": "~1.0",
         "peridot-php/peridot-code-coverage-reporters": "~1.0"

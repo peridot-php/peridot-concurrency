@@ -54,8 +54,8 @@ class StreamSelectRunner implements RunnerInterface
         $start = microtime(true);
         $command = realpath(__DIR__ . '/../../../bin/select-runner');
         $this->pool->start($command);
-        $this->eventEmitter->emit('runner.end');
-        $this->eventEmitter->emit('peridot.concurrency.runner.end', [microtime(true) - $start, $this->errors]);
+        $this->eventEmitter->emit('runner.end', [microtime(true) - $start]);
+        $this->eventEmitter->emit('peridot.concurrency.runner.end', [$this->errors]);
     }
 
     /**

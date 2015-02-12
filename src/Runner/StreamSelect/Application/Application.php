@@ -1,5 +1,5 @@
 <?php
-namespace Peridot\Concurrency\Runner\StreamSelect;
+namespace Peridot\Concurrency\Runner\StreamSelect\Application;
 
 use Evenement\EventEmitterInterface;
 use Peridot\Concurrency\Environment\Environment;
@@ -7,9 +7,8 @@ use Peridot\Concurrency\Environment\ReaderInterface;
 use Peridot\Concurrency\Runner\StreamSelect\Message\TestMessage;
 use Peridot\Core\Suite;
 use Peridot\Core\Test;
-use Peridot\Core\TestResult;
 use Peridot\Runner\Context;
-use Peridot\Runner\Runner;
+
 
 /**
  * The StreamSelect Application runs for each worker process and
@@ -30,6 +29,11 @@ class Application
     protected $reader;
 
     /**
+     * @var LooperInterface
+     */
+    protected $looper;
+
+    /**
      * @var TestMessage
      */
     protected $message;
@@ -38,10 +42,14 @@ class Application
      * @param Environment $environment
      * @param ReaderInterface $reader
      */
-    public function __construct(Environment $environment, ReaderInterface $reader)
-    {
+    public function __construct(
+        Environment $environment,
+        ReaderInterface $reader,
+        LooperInterface $looper
+    ) {
         $this->environment = $environment;
         $this->reader = $reader;
+        $this->looper = $looper;
     }
 
     /**
@@ -56,7 +64,7 @@ class Application
         $this->message = $message;
         $this->listen($this->environment->getEventEmitter());
         $context = Context::getInstance();
-        $this->loop($context);
+        $this->looper->loop($context, $this->environment, $message);
     }
 
     /**
@@ -149,34 +157,5 @@ class Application
         $emitter->on('test.passed', [$this, 'onTestPassed']);
         $emitter->on('test.failed', [$this, 'onTestFailed']);
         $emitter->on('test.pending', [$this, 'onTestPending']);
-    }
-
-    /**
-     * The application loop.
-     *
-     * @param TestMessage $message
-     * @param $context
-     * @param $configuration
-     * @param $emitter
-     */
-    protected function loop(Context $context)
-    {
-        while (true) {
-            $input = fgets($this->environment->getReadStream());
-            $path = trim($input);
-            $context->setFile($path);
-            require $path;
-
-            $runner = new Runner(
-                $context->getCurrentSuite(),
-                $this->environment->getConfiguration(),
-                $this->environment->getEventEmitter()
-            );
-
-            $runner->run(new TestResult($this->environment->getEventEmitter()));
-
-            $this->message->end();
-            $context->clear();
-        }
     }
 }

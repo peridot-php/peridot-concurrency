@@ -196,9 +196,9 @@ class ConcurrentReporter extends AbstractBaseReporter
      * @param float $time
      * @param array $errors
      */
-    public function onConcurrentRunnerEnd($time, $errors)
+    public function onConcurrentRunnerEnd($errors)
     {
-        $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($time)));
+        $this->output->writeln(sprintf(' Run time: %s', \PHP_Timer::secondsToTimeString($this->getTime())));
         $errorCount = count($errors);
         if (! $errorCount) {
             return;

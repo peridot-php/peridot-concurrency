@@ -28,18 +28,15 @@ describe('StreamSelectRunner', function () {
             $this->getProphet()->checkPredictions();
         });
 
-        it('should emit a peridot.concurrency.runner.end event with time and errors', function () {
+        it('should emit a peridot.concurrency.runner.end event with errors', function () {
             $result = new TestResult($this->emitter);
-            $time = null;
             $errors = null;
 
-            $this->emitter->on('peridot.concurrency.runner.end', function ($t, $e) use (&$time, &$errors) {
-                $time = $t;
+            $this->emitter->on('peridot.concurrency.runner.end', function ($e) use (&$errors) {
                 $errors = $e;
             });
 
             $this->runner->run($result);
-            expect($time)->satisfy('is_float', 'time should be a float');
             expect($errors)->to->be->an('array');
         });
     });
