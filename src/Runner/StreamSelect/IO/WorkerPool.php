@@ -49,6 +49,13 @@ class WorkerPool implements WorkerPoolInterface
     protected $broker;
 
     /**
+     * The command being run by workers in this pool.
+     *
+     * @var string
+     */
+    private $command;
+
+    /**
      * @param Configuration $configuration
      * @param EventEmitterInterface $eventEmitter
      * @param MessageBroker $broker
@@ -114,6 +121,7 @@ class WorkerPool implements WorkerPoolInterface
      */
     public function startWorkers($command)
     {
+        $this->command = $command;
         $processes = $this->configuration->getProcesses();
         for ($i = 0; $i < $processes; $i++) {
             $worker = new Worker($command, $this->eventEmitter, $this->resourceOpen);
@@ -296,6 +304,9 @@ class WorkerPool implements WorkerPoolInterface
         $worker = $this->getWorkerForStream($message->getResource());
         $this->detach($worker);
         $this->broker->removeMessage($message);
+
+        $worker = new Worker($this->command, $this->eventEmitter, $this->resourceOpen);
+        $this->attach($worker);
     }
 
     /**

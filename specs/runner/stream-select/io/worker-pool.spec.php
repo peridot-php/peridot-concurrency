@@ -45,18 +45,23 @@ describe('WorkerPool', function () {
     });
 
     context('when the broker emits an error event', function () {
-        it('should detach the worker and remove the message', function () {
+        it('should replace the worker and the message', function () {
             $worker = new Worker('/path/to/nowhere', $this->emitter, new TmpfileOpen());
             $this->pool->attach($worker);
             $messages = $this->broker->getMessages();
+            $workers = $this->pool->getWorkers();
             $messages->rewind();
+            $workers->rewind();
 
-            $this->broker->emit('error', ['catastrophe!', $messages->current()]);
+            $message = $messages->current();
+            $this->broker->emit('error', ['catastrophe!', $message]);
 
             $workers = $this->pool->getWorkers();
             $messages = $this->broker->getMessages();
-            expect($workers->count())->to->equal(0, 'there should be no workers');
-            expect($messages->count())->to->equal(0, 'there should be no messages');
+            $messages->rewind();
+            $workers->rewind();
+            expect($workers->current())->not->to->equal($workers);
+            expect($messages->current())->not->to->equal($message);
         });
     });
 
