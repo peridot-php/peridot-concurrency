@@ -28,6 +28,7 @@ class TestBroker extends MessageBroker
     public function __construct(EventEmitter $emitter)
     {
         $this->emitter = $emitter;
+        parent::__construct();
     }
 
     /**

@@ -17,7 +17,7 @@ class MessageBroker
      */
     public function __construct()
     {
-        $this->messages = [];
+        $this->messages = new \SplObjectStorage();
     }
 
     /**
@@ -28,15 +28,27 @@ class MessageBroker
     public function addMessage(Message $message)
     {
         $message->setMessageBroker($this);
-        $this->messages[] = $message;
+        $this->messages->attach($message);
     }
 
     /**
+     * Get the messages managed by the broker.
+     *
      * @return array
      */
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    /**
+     * Remove a message.
+     *
+     * @param Message $message
+     */
+    public function removeMessage(Message $message)
+    {
+        $this->messages->detach($message);
     }
 
     /**
@@ -46,9 +58,11 @@ class MessageBroker
      */
     public function getStreams()
     {
-        return array_map(function (Message $message) {
-            return $message->getResource();
-        }, $this->messages);
+        $streams = [];
+        foreach ($this->messages as $message) {
+            $streams[] = $message->getResource();
+        }
+        return $streams;
     }
 
     /**

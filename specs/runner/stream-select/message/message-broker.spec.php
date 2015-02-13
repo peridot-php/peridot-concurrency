@@ -19,6 +19,18 @@ describe('MessageBroker', function () {
         });
     });
 
+    describe('->removeMessage()', function () {
+        it('should remove the given message', function () {
+            $tmp = tmpfile();
+            $message = new Message($tmp);
+            $this->broker->addMessage($message);
+
+            $this->broker->removeMessage($message);
+
+            expect($this->broker->getMessages()->count())->to->equal(0);
+        });
+    });
+
     context('when added messages emit events', function () {
         beforeEach(function () {
             $tmp = tmpfile();
