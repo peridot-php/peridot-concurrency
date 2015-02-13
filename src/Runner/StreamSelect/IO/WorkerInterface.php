@@ -94,6 +94,13 @@ interface WorkerInterface
     public function free();
 
     /**
+     * Stop the worker and close any open resources.
+     *
+     * @return void
+     */
+    public function close();
+
+    /**
      * Return the most recent job info associated with this worker.
      *
      * @return JobInfo

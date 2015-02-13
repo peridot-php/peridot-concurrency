@@ -213,7 +213,7 @@ class Worker implements WorkerInterface
     }
 
     /**
-     * Stop the worker and close any open resources.
+     * {@inheritdoc}
      *
      * @return void
      */

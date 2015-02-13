@@ -148,6 +148,18 @@ class WorkerPool implements WorkerPoolInterface
     /**
      * {@inheritdoc}
      *
+     * @param WorkerInterface $worker
+     * @return void
+     */
+    public function detach(WorkerInterface $worker)
+    {
+        $worker->close();
+        $this->workers->detach($worker);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @return \SplObjectStorage
      */
     public function getWorkers()

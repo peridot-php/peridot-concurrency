@@ -43,6 +43,15 @@ interface WorkerPoolInterface
     public function attach(WorkerInterface $worker);
 
     /**
+     * Remove a worker from the WorkerPool and free it and
+     * any associated resources.
+     *
+     * @param WorkerInterface $worker
+     * @return void
+     */
+    public function detach(WorkerInterface $worker);
+
+    /**
      * Get all workers attached to the runner.
      *
      * @return \SplObjectStorage

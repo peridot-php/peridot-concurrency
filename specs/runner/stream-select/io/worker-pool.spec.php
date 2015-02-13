@@ -96,6 +96,27 @@ describe('WorkerPool', function () {
         });
     });
 
+    describe('->detach()', function () use ($mockStreams) {
+
+        afterEach(function () {
+            $this->getProphet()->checkPredictions();
+        });
+
+        it('should close the detached worker', function () {
+            $worker = $this->workers[0]->reveal();
+            $this->pool->attach($worker);
+            $this->pool->detach($worker);
+            $this->workers[0]->close()->shouldBeCalled();
+        });
+
+        it('should remove the detached worker', function () {
+            $worker = $this->workers[0]->reveal();
+            $this->pool->attach($worker);
+            $this->pool->detach($worker);
+            expect($this->pool->getWorkers()->count())->to->equal(0);
+        });
+    });
+
     describe('->start()', function () {
         beforeEach(function() {
             $open = new TmpfileOpen();
