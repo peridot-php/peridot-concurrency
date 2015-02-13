@@ -45,23 +45,34 @@ describe('WorkerPool', function () {
     });
 
     context('when the broker emits an error event', function () {
+        beforeEach(function () {
+            $this->worker = new Worker('/path/to/nowhere', $this->emitter, new TmpfileOpen());
+            $this->pool->attach($this->worker);
+            $this->messages = $this->broker->getMessages();
+            $this->messages->rewind();
+            $this->message = $this->messages->current();
+        });
+
         it('should replace the worker and the message', function () {
-            $worker = new Worker('/path/to/nowhere', $this->emitter, new TmpfileOpen());
-            $this->pool->attach($worker);
-            $messages = $this->broker->getMessages();
-            $workers = $this->pool->getWorkers();
-            $messages->rewind();
-            $workers->rewind();
-
-            $message = $messages->current();
-            $this->broker->emit('error', ['catastrophe!', $message]);
-
+            $this->broker->emit('error', ['catastrophe!', $this->message]);
             $workers = $this->pool->getWorkers();
             $messages = $this->broker->getMessages();
             $messages->rewind();
             $workers->rewind();
             expect($workers->current())->not->to->equal($workers);
-            expect($messages->current())->not->to->equal($message);
+            expect($messages->current())->not->to->equal($this->message);
+        });
+
+        it('should emit a peridot.concurrency.worker.error event', function () {
+            $worker = null;
+            $error = null;
+            $this->emitter->on('peridot.concurrency.worker.error', function ($e, $w) use (&$error, &$worker) {
+                $error = $e;
+                $worker = $w;
+            });
+            $this->broker->emit('error', ['catastrophe!', $this->message]);
+            expect($error)->to->equal('catastrophe!');
+            expect($worker)->to->equal($this->worker);
         });
     });
 

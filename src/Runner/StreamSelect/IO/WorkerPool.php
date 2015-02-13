@@ -302,6 +302,7 @@ class WorkerPool implements WorkerPoolInterface
     public function onError($error, Message $message)
     {
         $worker = $this->getWorkerForStream($message->getResource());
+        $this->eventEmitter->emit('peridot.concurrency.worker.error', [$error, $worker]);
         $this->detach($worker);
         $this->broker->removeMessage($message);
 

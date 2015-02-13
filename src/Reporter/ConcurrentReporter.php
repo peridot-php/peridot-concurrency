@@ -210,8 +210,10 @@ class ConcurrentReporter extends AbstractBaseReporter
             $labels = ['were', 'errors'];
         }
 
+        $this->output->writeln('');
         $this->output->writeln($this->color('error', sprintf('There %s %d %s:', $labels[0], $errorCount, $labels[1])));
-        foreach ($errors as $error) {
+        foreach ($errors as $path => $error) {
+            $this->output->writeln($this->color('error', $path . ':'));
             $this->output->writeln($error);
             $this->output->writeln('');
         }

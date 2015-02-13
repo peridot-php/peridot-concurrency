@@ -98,17 +98,23 @@ describe('ConcurrentReporter', function () {
         });
 
         it('should output error if present', function () {
-            $this->emitter->emit('peridot.concurrency.runner.end', [['FATAL ERROR']]);
+            $this->emitter->emit('peridot.concurrency.runner.end', [['/path/to/spec.php' => 'FATAL ERROR']]);
             $output = $this->output->fetch();
             expect($output)->to->have->string('There was 1 error:');
+            expect($output)->to->have->string('/path/to/spec.php');
             expect($output)->to->have->string('FATAL ERROR');
         });
 
         it('should output multiple errors if present', function () {
-            $this->emitter->emit('peridot.concurrency.runner.end', [['FATAL ERROR', 'BAD ERROR']]);
+            $this->emitter->emit('peridot.concurrency.runner.end', [[
+                '/path/to/spec.php' => 'FATAL ERROR',
+                '/path/to/other.spec.php' => 'BAD ERROR'
+            ]]);
             $output = $this->output->fetch();
             expect($output)->to->have->string('There were 2 errors:');
+            expect($output)->to->have->string('/path/to/spec.php');
             expect($output)->to->have->string('FATAL ERROR');
+            expect($output)->to->have->string('/path/to/other.spec.php');
             expect($output)->to->have->string('BAD ERROR');
         });
 

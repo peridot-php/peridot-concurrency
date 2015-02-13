@@ -1,5 +1,6 @@
 <?php
 use Evenement\EventEmitter;
+use Peridot\Concurrency\Runner\StreamSelect\IO\JobInfo;
 use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
 use Peridot\Concurrency\Runner\StreamSelect\IO\Worker;
 use Peridot\Concurrency\Runner\StreamSelect\StreamSelectRunner;
@@ -99,11 +100,17 @@ describe('StreamSelectRunner', function () {
         });
     });
 
-    context('when an error event is emitted on the broker', function () {
+    context('when an peridot.concurrency.worker.error event is emitted', function () {
+        beforeEach(function () {
+            $this->worker = $this->getProphet()->prophesize('Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface');
+            $info = new JobInfo('/path/to/spec.php');
+            $this->worker->getJobInfo()->willReturn($info);
+        });
+
         it('should store the error', function () {
-            $this->broker->emit('error', ['error!']);
+            $this->emitter->emit('peridot.concurrency.worker.error', ['error!', $this->worker->reveal()]);
             $errors = $this->runner->getErrors();
-            expect($errors)->to->contain('error!');
+            expect($errors)->to->have->property('/path/to/spec.php', 'error!');
         });
     });
 

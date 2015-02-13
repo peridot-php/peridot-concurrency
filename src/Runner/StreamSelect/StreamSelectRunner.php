@@ -1,6 +1,7 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect;
 
+use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerInterface;
 use Peridot\Concurrency\Runner\StreamSelect\IO\WorkerPoolInterface;
 use Peridot\Core\HasEventEmitterTrait;
 use Peridot\Core\Suite;
@@ -119,9 +120,10 @@ class StreamSelectRunner implements RunnerInterface
      *
      * @param $data
      */
-    public function onError($data)
+    public function onError($error, WorkerInterface $worker)
     {
-        $this->errors[] = $data;
+        $info = $worker->getJobInfo();
+        $this->errors[$info->file] = $error;
     }
 
     /**
@@ -154,12 +156,12 @@ class StreamSelectRunner implements RunnerInterface
     protected function listen()
     {
         $this->eventEmitter->on('peridot.concurrency.pool.start-workers', [$this, 'onWorkersStart']);
+        $this->eventEmitter->on('peridot.concurrency.worker.error', [$this, 'onError']);
         $broker = $this->pool->getMessageBroker();
         $broker->on('suite.start', [$this, 'onSuiteStart']);
         $broker->on('suite.end', [$this, 'onSuiteEnd']);
         $broker->on('test.passed', [$this, 'onTestPassed']);
         $broker->on('test.failed', [$this, 'onTestFailed']);
         $broker->on('test.pending', [$this, 'onTestPending']);
-        $broker->on('error', [$this, 'onError']);
     }
 }
