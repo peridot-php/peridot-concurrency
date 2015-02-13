@@ -201,7 +201,7 @@ class TestMessage extends Message
         $unpacked = json_decode($testMessage);
 
         if (!$unpacked) {
-            $this->emit('error', ["Illegal message format: $testMessage"]);
+            $this->emit('error', ["Illegal message format: $testMessage", $this]);
             $this->clearBuffer();
             return [];
         }
@@ -235,6 +235,11 @@ class TestMessage extends Message
     private function emitTest($testMessage)
     {
         $unpacked = $this->unpackMessage($testMessage);
+
+        if (! $unpacked) {
+            return;
+        }
+
         $test = $this->hydrateTest($unpacked);
         $packer = $this->getStringPacker();
 

@@ -124,17 +124,15 @@ describe('TestMessage', function () {
                 $error = null;
                 $reference = null;
 
-                $this->message->on('error', function ($e) use (&$error) {
+                $this->message->on('error', function ($e, $m) use (&$error, &$reference) {
                     $error = $e;
-                });
-
-                $this->message->on('end', function ($m) use (&$reference) {
                     $reference = $m;
                 });
 
                 $this->message->emit('data', [$message . "\n"]);
 
                 expect($error)->to->have->string($message);
+                expect($reference)->to->equal($this->message);
                 expect($this->message->getBuffer())->to->be->empty;
             });
 
