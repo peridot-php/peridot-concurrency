@@ -144,6 +144,12 @@ class Worker implements WorkerInterface
      */
     public function isRunning()
     {
+        if ($this->resourceOpen instanceof ProcOpen) {
+            $status = proc_get_status($this->process);
+            $running = $status['running'];
+            $this->running = ($running === false) ? $running : $this->running;
+        }
+
         return $this->running;
     }
 
