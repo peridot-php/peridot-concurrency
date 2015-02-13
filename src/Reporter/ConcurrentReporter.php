@@ -37,7 +37,6 @@ class ConcurrentReporter extends AbstractBaseReporter
     public function init()
     {
         $this->eventEmitter->on('peridot.concurrency.stream-select.start', [$this, 'onStreamSelectStart']);
-        $this->eventEmitter->on('suite.start', [$this, 'onSuiteStart']);
         $this->eventEmitter->on('test.passed', [$this, 'onTestPassed']);
         $this->eventEmitter->on('test.failed', [$this, 'onTestFailed']);
         $this->eventEmitter->on('test.pending', [$this, 'onTestPending']);
@@ -65,26 +64,13 @@ class ConcurrentReporter extends AbstractBaseReporter
     }
 
     /**
-     * Track a suite file path.
-     *
-     * @param Suite $suite
-     */
-    public function onSuiteStart(Suite $suite)
-    {
-        $this->trackTest($suite);
-    }
-
-    /**
      * Track a passing test.
      *
      * @param Test $test
      */
     public function onTestPassed(Test $test)
     {
-        $this->suites[$test->getFile()][] = [
-            'test' => $test,
-            'exception' => null
-        ];
+        $this->trackTest($test);
     }
 
     /**
@@ -95,10 +81,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     public function onTestFailed(Test $test, $exception)
     {
-        $this->suites[$test->getFile()][] = [
-            'test' => $test,
-            'exception' => $exception
-        ];
+        $this->trackTest($test, $exception);
     }
 
     /**
@@ -108,10 +91,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      */
     public function onTestPending(Test $test)
     {
-        $this->suites[$test->getFile()][] = [
-            'test' => $test,
-            'exception' => null
-        ];
+        $this->trackTest($test);
     }
 
     /**
@@ -277,12 +257,17 @@ class ConcurrentReporter extends AbstractBaseReporter
      * @param AbstractTest $test
      * @return void
      */
-    protected function trackTest(AbstractTest $test)
+    protected function trackTest(AbstractTest $test, $exception = null)
     {
         $file = $test->getFile();
         if (! isset($this->suites[$file])) {
             $this->suites[$file] = [];
         }
+
+        $this->suites[$file][] = [
+            'test' => $test,
+            'exception' => $exception
+        ];
     }
 
     /**

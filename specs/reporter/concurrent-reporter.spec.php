@@ -26,13 +26,6 @@ describe('ConcurrentReporter', function () {
         $this->exception = new \Peridot\Concurrency\Runner\StreamSelect\Model\Exception();
     });
 
-    context('when the suite.start event is emitted', function () {
-        it('should track the suite', function () {
-            $suites = $this->reporter->getSuites();
-            expect($suites)->to->have->property(__FILE__);
-        });
-    });
-
     context('when the test.passed event is emitted', function () {
         beforeEach(function () {
             $this->emitter->emit('test.passed', [$this->test]);
