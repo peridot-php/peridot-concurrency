@@ -140,7 +140,6 @@ class WorkerPool implements WorkerPoolInterface
         }
 
         $this->broker->addMessage(new TestMessage($worker->getOutputStream()));
-        $this->broker->addMessage(new ErrorMessage($worker->getErrorStream()));
 
         return true;
     }

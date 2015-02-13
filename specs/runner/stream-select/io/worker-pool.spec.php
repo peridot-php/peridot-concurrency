@@ -125,7 +125,6 @@ describe('WorkerPool', function () {
             $readStreams = [];
             foreach ($workers as $worker) {
                 $readStreams[] = $worker->getOutputStream();
-                $readStreams[] = $worker->getErrorStream();
             }
             expect($this->pool->getReadStreams())->to->loosely->equal($readStreams);;
         });
