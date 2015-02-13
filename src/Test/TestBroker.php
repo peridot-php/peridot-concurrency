@@ -51,4 +51,4 @@ class TestBroker extends MessageBroker
             $this->emitter->emit('peridot.concurrency.worker.completed', [$worker]);
         }
     }
-} 
+}

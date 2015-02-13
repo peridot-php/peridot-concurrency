@@ -1,7 +1,7 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
-class JobInfo 
+class JobInfo
 {
     /**
      * The file associated with the job.

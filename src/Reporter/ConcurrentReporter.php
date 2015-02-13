@@ -85,7 +85,7 @@ class ConcurrentReporter extends AbstractBaseReporter
             'test' => $test,
             'exception' => null
         ];
-     }
+    }
 
     /**
      * Track a test failure.
@@ -212,11 +212,7 @@ class ConcurrentReporter extends AbstractBaseReporter
 
         $this->output->writeln('');
         $this->output->writeln($this->color('error', sprintf('There %s %d %s:', $labels[0], $errorCount, $labels[1])));
-        foreach ($errors as $path => $error) {
-            $this->output->writeln($this->color('error', $path . ':'));
-            $this->output->writeln($error);
-            $this->output->writeln('');
-        }
+        $this->outputErrors($errors);
     }
 
     /**
@@ -327,5 +323,19 @@ class ConcurrentReporter extends AbstractBaseReporter
         }
 
         return $this->color('success', " $label passed");
+    }
+
+    /**
+     * Output the collection of errors.
+     *
+     * @param $errors
+     */
+    protected function outputErrors($errors)
+    {
+        foreach ($errors as $path => $error) {
+            $this->output->writeln($this->color('error', $path . ':'));
+            $this->output->writeln($error);
+            $this->output->writeln('');
+        }
     }
 }

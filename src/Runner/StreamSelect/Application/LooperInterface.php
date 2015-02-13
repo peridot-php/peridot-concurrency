@@ -8,4 +8,4 @@ use Peridot\Runner\Context;
 interface LooperInterface
 {
     public function loop(Context $context, Environment $environment, Message $message);
-} 
+}

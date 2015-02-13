@@ -9,7 +9,6 @@ use Peridot\Core\Suite;
 use Peridot\Core\Test;
 use Peridot\Runner\Context;
 
-
 /**
  * The StreamSelect Application runs for each worker process and
  * writes data to listening messages.
