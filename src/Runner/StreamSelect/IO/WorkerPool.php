@@ -228,6 +228,23 @@ class WorkerPool implements WorkerPoolInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * @param $stream
+     * @return WorkerInterface
+     */
+    public function getWorkerForStream($stream)
+    {
+        foreach ($this->workers as $worker) {
+            if ($worker->hasStream($stream)) {
+                return $worker;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Frees a worker and removes workers that are not running
      * from the internal collection of running workers.
      *
@@ -251,12 +268,9 @@ class WorkerPool implements WorkerPoolInterface
      */
     public function onMessageEnd(Message $message)
     {
-        foreach ($this->running as $worker) {
-            if ($worker->hasStream($message->getResource())) {
-                $worker->getJobInfo()->end = microtime(true);
-                $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
-            }
-        }
+        $worker = $this->getWorkerForStream($message->getResource());
+        $worker->getJobInfo()->end = microtime(true);
+        $this->eventEmitter->emit('peridot.concurrency.worker.completed', [$worker]);
     }
 
     /**

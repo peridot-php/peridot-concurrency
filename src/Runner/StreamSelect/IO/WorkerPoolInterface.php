@@ -100,4 +100,12 @@ interface WorkerPoolInterface
      * @return \Peridot\Concurrency\Runner\StreamSelect\Message\MessageBroker
      */
     public function getMessageBroker();
+
+    /**
+     * Returns the worker that owns the given stream.
+     *
+     * @param $stream
+     * @return WorkerInterface
+     */
+    public function getWorkerForStream($stream);
 }
