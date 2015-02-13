@@ -123,11 +123,11 @@ describe('WorkerPool', function () {
             $this->getProphet()->checkPredictions();
         });
 
-        it('should close the detached worker', function () {
+        it('should free the detached worker', function () {
             $worker = $this->workers[0]->reveal();
             $this->pool->attach($worker);
             $this->pool->detach($worker);
-            $this->workers[0]->close()->shouldBeCalled();
+            $this->workers[0]->free()->shouldBeCalled();
         });
 
         it('should remove the detached worker', function () {

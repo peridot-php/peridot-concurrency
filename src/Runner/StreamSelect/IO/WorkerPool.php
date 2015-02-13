@@ -161,7 +161,7 @@ class WorkerPool implements WorkerPoolInterface
      */
     public function detach(WorkerInterface $worker)
     {
-        $worker->close();
+        $worker->free();
         $this->workers->detach($worker);
     }
 
