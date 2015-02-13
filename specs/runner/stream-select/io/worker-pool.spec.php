@@ -44,6 +44,22 @@ describe('WorkerPool', function () {
         });
     });
 
+    context('when the broker emits an error event', function () {
+        it('should detach the worker and remove the message', function () {
+            $worker = new Worker('/path/to/nowhere', $this->emitter, new TmpfileOpen());
+            $this->pool->attach($worker);
+            $messages = $this->broker->getMessages();
+            $messages->rewind();
+
+            $this->broker->emit('error', ['catastrophe!', $messages->current()]);
+
+            $workers = $this->pool->getWorkers();
+            $messages = $this->broker->getMessages();
+            expect($workers->count())->to->equal(0, 'there should be no workers');
+            expect($messages->count())->to->equal(0, 'there should be no messages');
+        });
+    });
+
     describe('->getMessageBroker()', function () {
         it("it should return the pool's message broker", function () {
             expect($this->pool->getMessageBroker())->to->equal($this->broker);

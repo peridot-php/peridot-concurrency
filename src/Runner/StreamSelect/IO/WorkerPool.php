@@ -286,6 +286,19 @@ class WorkerPool implements WorkerPoolInterface
     }
 
     /**
+     * Remove the worker that erred and replace it.
+     *
+     * @param $error
+     * @param Message $message
+     */
+    public function onError($error, Message $message)
+    {
+        $worker = $this->getWorkerForStream($message->getResource());
+        $this->detach($worker);
+        $this->broker->removeMessage($message);
+    }
+
+    /**
      * Set event listeners.
      *
      * @return void
@@ -296,5 +309,6 @@ class WorkerPool implements WorkerPoolInterface
         $this->eventEmitter->on('peridot.concurrency.worker.run', [$this, 'addRunning']);
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
         $this->broker->on('end', [$this, 'onMessageEnd']);
+        $this->broker->on('error', [$this, 'onError']);
     }
 }
