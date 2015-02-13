@@ -1,5 +1,6 @@
 <?php
 use Evenement\EventEmitter;
+use Peridot\Concurrency\Runner\StreamSelect\IO\ProcOpen;
 use Peridot\Concurrency\Runner\StreamSelect\IO\TmpfileOpen;
 use Peridot\Concurrency\Runner\StreamSelect\IO\Worker;
 
@@ -89,6 +90,20 @@ describe('Worker', function () {
             $this->worker->run('/path/to/test.php');
             $this->worker->free();
             expect($this->worker->isRunning())->to->be->false;
+        });
+    });
+
+    describe('->isRunning()', function () {
+        it('should set the running status to false if an open proc has exited', function () {
+            $worker = new Worker('php -v', $this->emitter, new ProcOpen());
+            $worker->start();
+            $start = microtime(true);
+            while ($worker->isRunning()) {
+                $now = microtime(true) - $start;
+                if ($now > 2) {
+                    throw new Exception("Timeout exceeded 2 second limit");
+                }
+            }
         });
     });
 });
