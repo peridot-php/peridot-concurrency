@@ -149,6 +149,33 @@ describe('WorkerPool', function () {
         });
     });
 
+    describe('->getWorkerForStream()', function () {
+        beforeEach(function () {
+            $this->resource = tmpfile();
+            $this->workers[0]->isStarted()->shouldBecalled();
+            $this->workers[0]->start()->shouldBecalled();
+            $this->workers[0]->getOutputStream()->willReturn($this->resource);
+            $this->pool->attach($this->workers[0]->reveal());
+        });
+
+        afterEach(function () {
+            $this->getProphet()->checkPredictions();
+        });
+
+        it('should return the worker that has the stream', function () {
+            $this->workers[0]->hasStream($this->resource)->willReturn(true);
+            $worker = $this->pool->getWorkerForStream($this->resource);
+            expect($worker)->to->equal($this->workers[0]->reveal());
+        });
+
+        it('should return null if the resource has no owner', function () {
+            $tmpfile = tmpfile();
+            $this->workers[0]->hasStream($tmpfile)->willReturn(false);
+            $worker = $this->pool->getWorkerForStream($tmpfile);
+            expect($worker)->to->be->null;
+        });
+    });
+
     describe('->start()', function () {
         beforeEach(function() {
             $open = new TmpfileOpen();
