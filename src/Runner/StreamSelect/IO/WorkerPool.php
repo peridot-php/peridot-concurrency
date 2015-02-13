@@ -34,9 +34,9 @@ class WorkerPool implements WorkerPoolInterface
     protected $running = [];
 
     /**
-     * @var array
+     * @var \SplObjectStorage
      */
-    protected $workers = [];
+    protected $workers;
 
     /**
      * @var ResourceOpenInterface
@@ -60,6 +60,7 @@ class WorkerPool implements WorkerPoolInterface
         MessageBroker $broker,
         ResourceOpenInterface $resourceOpen = null
     ) {
+        $this->workers = new \SplObjectStorage();
         $this->configuration = $configuration;
         $this->eventEmitter = $eventEmitter;
         $this->broker = $broker;
@@ -133,7 +134,7 @@ class WorkerPool implements WorkerPoolInterface
             return false;
         }
 
-        $this->workers[] = $worker;
+        $this->workers->attach($worker);
 
         if (! $worker->isStarted()) {
             $worker->start();
@@ -147,7 +148,7 @@ class WorkerPool implements WorkerPoolInterface
     /**
      * {@inheritdoc}
      *
-     * @return array
+     * @return \SplObjectStorage
      */
     public function getWorkers()
     {

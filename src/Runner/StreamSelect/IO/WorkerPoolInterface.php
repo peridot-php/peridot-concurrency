@@ -45,7 +45,7 @@ interface WorkerPoolInterface
     /**
      * Get all workers attached to the runner.
      *
-     * @return array
+     * @return \SplObjectStorage
      */
     public function getWorkers();
 
