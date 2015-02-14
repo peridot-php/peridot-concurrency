@@ -32,6 +32,11 @@ class StreamSelectRunner implements RunnerInterface
     protected $errors = [];
 
     /**
+     * @var TestResult
+     */
+    protected $result;
+
+    /**
      * @param EventEmitterInterface $emitter
      * @param IO\WorkerPoolInterface $pool
      */
@@ -52,6 +57,7 @@ class StreamSelectRunner implements RunnerInterface
      */
     public function run(TestResult $result)
     {
+        $this->result = $result;
         $start = microtime(true);
         $command = realpath(__DIR__ . '/../../../bin/select-runner');
         $this->pool->start($command);
@@ -82,18 +88,18 @@ class StreamSelectRunner implements RunnerInterface
     }
 
     /**
-     * Delegate test.passed message event to the Peridot event emitter.
+     * Delegate test.passed message event to a Peridot TestResult.
      *
      * @param Test $suite
      * @return void
      */
     public function onTestPassed(Test $test)
     {
-        $this->eventEmitter->emit('test.passed', [$test]);
+        $this->result->passTest($test);
     }
 
     /**
-     * Delegate test.failed message event to the Peridot event emitter.
+     * Delegate test.failed message event to a Peridot TestResult.
      *
      * @param Test $suite
      * @param $exception - an exception like object
@@ -101,18 +107,18 @@ class StreamSelectRunner implements RunnerInterface
      */
     public function onTestFailed(Test $test, $exception)
     {
-        $this->eventEmitter->emit('test.failed', [$test, $exception]);
+        $this->result->failTest($test, $exception);
     }
 
     /**
-     * Delegate test.pending message event to the Peridot event emitter.
+     * Delegate test.pending message event to a Peridot TestResult.
      *
      * @param Test $suite
      * @return void
      */
     public function onTestPending(Test $test)
     {
-        $this->eventEmitter->emit('test.pending', [$test]);
+        $this->result->pendTest($test);
     }
 
     /**
