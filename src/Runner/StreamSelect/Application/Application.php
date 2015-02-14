@@ -144,6 +144,13 @@ class Application
             ->write();
     }
 
+    public function onSuiteHalt()
+    {
+        $this->message
+            ->setEvent('suite.halt')
+            ->write();
+    }
+
     /**
      * Listen for message events.
      *
@@ -156,5 +163,6 @@ class Application
         $emitter->on('test.passed', [$this, 'onTestPassed']);
         $emitter->on('test.failed', [$this, 'onTestFailed']);
         $emitter->on('test.pending', [$this, 'onTestPending']);
+        $emitter->on('suite.halt', [$this, 'onSuiteHalt']);
     }
 }

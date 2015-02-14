@@ -117,4 +117,11 @@ interface WorkerPoolInterface
      * @return WorkerInterface
      */
     public function getWorkerForStream($stream);
+
+    /**
+     * Immediately stop the worker pool.
+     *
+     * @return void
+     */
+    public function stop();
 }

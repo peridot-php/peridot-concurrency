@@ -21,4 +21,11 @@ return function (EventEmitterInterface $emitter) {
     $emitter->on('code-coverage.start', function (AbstractCodeCoverageReporter $reporter) {
         $reporter->addDirectoryToWhitelist(__DIR__ . '/src');
     });
+
+    $debug = getenv('DEBUG');
+    if ($debug) {
+        $emitter->on('error', function ($number, $message, $file, $line) {
+            print "Error: $number - $message:$file:$line\n";
+        });
+    }
 };

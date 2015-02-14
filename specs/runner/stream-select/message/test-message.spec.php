@@ -220,5 +220,26 @@ describe('TestMessage', function () {
                 });
             });
         });
+
+        context('when receiving an arbitrary event', function () {
+            beforeEach(function () {
+                $this->message
+                    ->setEvent('suite.halt')
+                    ->write();
+                fseek($this->tmpfile, 0);
+                $this->content = fread($this->tmpfile, 4096);
+            });
+
+            it('should emit the event', function () {
+                $emitted = false;
+                $this->message->on('suite.halt', function () use (&$emitted) {
+                    $emitted = true;
+                });
+
+                $this->message->emit('data', [$this->content]);
+
+                expect($emitted)->to->be->true;
+            });
+        });
     });
 });

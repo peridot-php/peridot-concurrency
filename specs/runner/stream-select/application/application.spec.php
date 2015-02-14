@@ -134,4 +134,14 @@ describe('Application', function () {
             ]);
         });
     });
+
+    context('when a suite.halt event is emitted', function () {
+        it('should write a suite.halt event to the test message', function () {
+            $this->emitter->emit('suite.halt');
+
+            $this->expectMessageValues($this->writeStream, [
+                'suite.halt'
+            ]);
+        });
+    });
 });

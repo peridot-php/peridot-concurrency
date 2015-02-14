@@ -311,6 +311,17 @@ class WorkerPool implements WorkerPoolInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * @return void
+     */
+    public function stop()
+    {
+        $this->pending = [];
+        $this->running = [];
+    }
+
+    /**
      * Set event listeners.
      *
      * @return void
@@ -322,5 +333,6 @@ class WorkerPool implements WorkerPoolInterface
         $this->eventEmitter->on('peridot.concurrency.worker.completed', [$this, 'onWorkerComplete']);
         $this->broker->on('end', [$this, 'onMessageEnd']);
         $this->broker->on('error', [$this, 'onError']);
+        $this->broker->on('suite.halt', [$this, 'stop']);
     }
 }

@@ -37,6 +37,16 @@ describe('WorkerPool', function () {
         });
     });
 
+    context('when a suite.halt event is emitted on the broker', function () {
+        it('should stop the worker pool', function () {
+            $this->emitter->emit('peridot.concurrency.load', [['one.spec.php', 'two.spec.php', 'three.spec.php']]);
+
+            $this->broker->emit('suite.halt');
+
+            expect($this->pool->isWorking())->to->be->false;
+        });
+    });
+
     context('when peridot.concurrency.worker.run event is emitted', function () {
         it('should increment the running count', function () {
             $this->emitter->emit('peridot.concurrency.worker.run', [$this->workers[0]->reveal()]);
