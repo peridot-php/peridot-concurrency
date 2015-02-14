@@ -16,4 +16,4 @@ install:
   - composer install --prefer-source
 
 script:
-  - vendor/bin/peridot specs/
+  - vendor/bin/peridot specs/ --concurrent -p 4
