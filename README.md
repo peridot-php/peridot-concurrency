@@ -13,6 +13,12 @@ peridot-concurrency leverages good old fashioned non-blocking IO to run our test
 
 ## Usage
 
+You can install via composer:
+
+```
+composer require --dev peridot-php/peridot-concurrency
+```
+
 peridot-concurreny can be added to your test workflow like any Peridot extension - that is via the `peridot.php` file:
 
 ```php
@@ -35,3 +41,29 @@ This is how you signal Peridot to run your tests concurrently. This will start a
 ### --processes (-p)
 
 This new option can be used to specify the number of worker processes to start. It defaults to 5, and the sweet spot will vary from machine to machine.
+
+## OS Support
+
+Due to limitations of the Windows operating system, it is currently not supported by the peridot-concurreny plugin. This has to do with the `stream_select` function not being able to work with file descriptors returned from `proc_open` on the Windows operating system.
+
+`stream_select` is currently the most efficient "out-of-the-box" solution for this type of work, but stay tuned for a "process per test" runner that works on Windows, and a [pthreads](http://php.net/manual/en/book.pthreads.php) based runner where the extension is available.
+
+## Performance
+
+There is some overhead with creating processes, so not every suite will improve from using concurrency. For example, if you have a suite that runs in 68ms, it's hard to improve on that. BUT! The test suites run so far, have noticed significant speed improvements, even on the unit level.
+
+peridot-concurrency runs it's own tests concurrently:
+
+### before
+
+![Peridot concurrency suite run serially](https://raw.github.com/peridot-php/peridot-concurrency/master/dot.png "Peridot concurrency suite run serially")
+
+### after
+
+![Peridot concurrency suite run concurrently](https://raw.github.com/peridot-php/peridot-concurrency/master/concurrent.png "Peridot concurrency suite run concurrently")
+
+On the machines tested, Peridot's own test suite was run in 1/4th of the time!
+
+### Fine tuning
+
+As mentioned before, the exact number of processes to use will vary from machine to machine. Try experimenting with different process numbers to get the most speed out of peridot-concurrency.
