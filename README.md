@@ -5,11 +5,11 @@ Lets run our specs a lot faster!
 [![Build Status](https://travis-ci.org/peridot-php/peridot-concurrency.png)](https://travis-ci.org/peridot-php/peridot-concurrency) [![HHVM Status](http://hhvm.h4cc.de/badge/peridot-php/peridot-concurrency.svg)](http://hhvm.h4cc.de/package/peridot-php/peridot-concurrency)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/peridot-php/peridot-concurrency/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/peridot-php/peridot-concurrency/?branch=master)
 
-This plugin includes a runner and reporter that allows you to run your peridot tests concurrently! Have a bunch of slow WebDriver tests? How about a bunch of DB tests? Tired of waiting? Why not run them at the same time!?!?
+This plugin includes a runner and reporter that allows you to run your Peridot tests concurrently! Have a bunch of slow WebDriver tests? How about a bunch of DB tests? Tired of waiting? Why not run them at the same time!?!?
 
 ## How does it work?
 
-peridot-concurrency leverages good old fashioned non-blocking IO to run our tests concurrently. This plugin creates `N` worker processes as specified on the CLI, and each worker communicates with the main process as test results become available. The function responsible for polling workers is the [stream_select](http://php.net/manual/en/function.stream-select.php) function.
+peridot-concurrency leverages good old fashioned non-blocking IO to run our tests concurrently. This plugin creates `N` worker processes as specified on the command line, and each worker communicates with the main process as test results become available. The function responsible for polling workers is the [stream_select](http://php.net/manual/en/function.stream-select.php) function.
 
 ## Usage
 
@@ -30,7 +30,7 @@ return function (EventEmitterInterface $emitter) {
 };
 ```
 
-After registering the plugin, your usage screen should have a couple new options:
+After registering the plugin, your usage screen should have a couple of new options:
 
 ![Peridot concurrency usage](https://raw.github.com/peridot-php/peridot-concurrency/master/usage.png "Peridot concurrency usage")
 
@@ -62,8 +62,23 @@ peridot-concurrency runs it's own tests concurrently:
 
 ![Peridot concurrency suite run concurrently](https://raw.github.com/peridot-php/peridot-concurrency/master/concurrent.png "Peridot concurrency suite run concurrently")
 
-On the machines tested, Peridot's own test suite was run in 1/4th of the time!
+On the machines tested, Peridot's own test suite was run in 1/4th of the time! The thing to note here is that these are just unit test suites. The amount of time saved running a bulky integration or functional test suite would be even more significant (examples coming soon).
 
 ### Fine tuning
 
 As mentioned before, the exact number of processes to use will vary from machine to machine. Try experimenting with different process numbers to get the most speed out of peridot-concurrency.
+
+## Worker IDs
+
+Each worker process has its own unique ID, and it is surfaced as an environment variable `PERIDOT_WORKER_ID`. This may be useful for creating unique resources based on this ID. For instance:
+
+```php
+$id = getenv('PERIDOT_WORKER_ID');
+$dbname = "mydb_$id";
+//create and seed DB identified by $dbname
+//do database things
+```
+
+## Contributing
+
+Concurrency can be tricky business. If you have any issues or ideas please let us know! Pull requests are always welcome.
