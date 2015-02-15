@@ -130,6 +130,8 @@ class StreamSelectRunner implements RunnerInterface
     {
         $info = $worker->getJobInfo();
         $this->errors[$info->file] = $error;
+        $failures = $this->result->getFailureCount();
+        $this->result->setFailureCount(++$failures);
     }
 
     /**

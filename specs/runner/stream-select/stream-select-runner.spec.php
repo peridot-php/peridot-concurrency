@@ -45,8 +45,8 @@ describe('StreamSelectRunner', function () {
     describe('event listeners', function () {
         beforeEach(function () {
             $this->pool->start(Argument::any())->shouldBeCalled();
-            $result = new TestResult($this->emitter);
-            $this->runner->run($result);
+            $this->result = new TestResult($this->emitter);
+            $this->runner->run($this->result);
         });
 
         afterEach(function () {
@@ -122,6 +122,12 @@ describe('StreamSelectRunner', function () {
                 $this->emitter->emit('peridot.concurrency.worker.error', ['error!', $this->worker->reveal()]);
                 $errors = $this->runner->getErrors();
                 expect($errors)->to->have->property('/path/to/spec.php', 'error!');
+            });
+
+            it('should increase the result failure count', function () {
+                $this->emitter->emit('peridot.concurrency.worker.error', ['error!', $this->worker->reveal()]);
+
+                expect($this->result->getFailureCount())->to->equal(1);
             });
         });
 
