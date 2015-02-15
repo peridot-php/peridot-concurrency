@@ -62,7 +62,9 @@ peridot-concurrency runs it's own tests concurrently:
 
 ![Peridot concurrency suite run concurrently](https://raw.github.com/peridot-php/peridot-concurrency/master/concurrent.png "Peridot concurrency suite run concurrently")
 
-On the machines tested, Peridot's own test suite was run in 1/4th of the time! The thing to note here is that these are just unit test suites. The amount of time saved running a bulky integration or functional test suite would be even more significant (examples coming soon).
+On the machines tested, Peridot's own test suite was run in 1/4th of the time! You can see peridot-concurrency's [travis build](https://travis-ci.org/peridot-php/peridot-concurrency) to see even faster run times.
+
+The thing to note here is that these are just unit test suites. The amount of time saved running a bulky integration or functional test suite would be even more significant (examples coming soon).
 
 ### Fine tuning
 
