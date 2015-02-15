@@ -21,8 +21,9 @@ class RunnerLooper implements LooperInterface
     {
         while (true) {
             $input = fgets($environment->getReadStream());
-            $path = trim($input);
+            list($token, $path) = $this->getTestInfo($input);
             $context->setFile($path);
+            putenv("PERIDOT_TEST_TOKEN=$token");
             require $path;
 
             $runner = new Runner(
@@ -36,5 +37,21 @@ class RunnerLooper implements LooperInterface
             $message->end();
             $context->clear();
         }
+    }
+
+    /**
+     * Parse input to get a test token and test path.
+     *
+     * @param $input
+     * @return array
+     */
+    public function getTestInfo($input)
+    {
+        $message = trim($input);
+        $parts = explode(':', $message);
+        $index = sizeof($parts) - 1;
+        $token = $parts[$index];
+        $path = implode(':', array_slice($parts, 0, $index));
+        return [$token, $path];
     }
 }
