@@ -68,12 +68,12 @@ On the machines tested, Peridot's own test suite was run in 1/4th of the time! T
 
 As mentioned before, the exact number of processes to use will vary from machine to machine. Try experimenting with different process numbers to get the most speed out of peridot-concurrency.
 
-## Worker IDs
+## Test Tokens
 
-Each worker process has its own unique ID, and it is surfaced as an environment variable `PERIDOT_WORKER_ID`. This may be useful for creating unique resources based on this ID. For instance:
+Each worker process has its own unique ID, and it is surfaced as an environment variable `PERIDOT_TEST_TOKEN`. This may be useful for creating unique resources based on this token. For instance:
 
 ```php
-$id = getenv('PERIDOT_WORKER_ID');
+$id = getenv('PERIDOT_TEST_TOKEN');
 $dbname = "mydb_$id";
 //create and seed DB identified by $dbname
 //do database things
