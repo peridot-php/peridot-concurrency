@@ -4,6 +4,9 @@ filter:
 checks:
   php:
     parameter_doc_comments: false
+    return_doc_comments: false
+    param_doc_comment_if_not_inferrable: false
+    more_specific_types_in_doc_comments: false
 tools:
   php_cpd: true
   php_changetracking: true
