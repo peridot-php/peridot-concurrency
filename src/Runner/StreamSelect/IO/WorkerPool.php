@@ -87,7 +87,7 @@ class WorkerPool implements WorkerPoolInterface
         while ($this->isWorking()) {
             $worker = $this->getAvailableWorker();
 
-            if ($worker && $this->pending) {
+            if ($worker && ! empty($this->pending)) {
                 $worker->run(array_shift($this->pending));
             }
 
@@ -138,7 +138,7 @@ class WorkerPool implements WorkerPoolInterface
      */
     public function attach(WorkerInterface $worker)
     {
-        if (sizeof($this->workers) === $this->configuration->getProcesses()) {
+        if (count($this->workers) === $this->configuration->getProcesses()) {
             return false;
         }
 
@@ -232,8 +232,8 @@ class WorkerPool implements WorkerPoolInterface
      */
     public function isWorking()
     {
-        $numPending = sizeof($this->getPending());
-        $numRunning = sizeof($this->getRunning());
+        $numPending = count($this->getPending());
+        $numRunning = count($this->getRunning());
         return $numPending > 0 || $numRunning > 0;
     }
 
@@ -298,10 +298,16 @@ class WorkerPool implements WorkerPoolInterface
      *
      * @param $error
      * @param Message $message
+     * @return void
      */
     public function onError($error, Message $message)
     {
         $worker = $this->getWorkerForStream($message->getResource());
+
+        if ($worker === null) {
+            return;
+        }
+
         $this->eventEmitter->emit('peridot.concurrency.worker.error', [$error, $worker]);
         $this->detach($worker);
         $this->broker->removeMessage($message);

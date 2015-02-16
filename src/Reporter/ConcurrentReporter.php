@@ -157,7 +157,7 @@ class ConcurrentReporter extends AbstractBaseReporter
     public function writeTestFailures(array $tests)
     {
         $failures = array_filter($tests, function ($test) {
-            return !is_null($test['exception']);
+            return $test['exception'] !== null;
         });
 
         $failures = array_values($failures);
@@ -173,7 +173,6 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Output test stats. If any errors were written to stderr at any point, then
      * they will be dumped here.
      *
-     * @param float $time
      * @param array $errors
      */
     public function onConcurrentRunnerEnd($errors)

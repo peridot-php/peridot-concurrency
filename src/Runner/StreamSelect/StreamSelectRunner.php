@@ -22,7 +22,7 @@ class StreamSelectRunner implements RunnerInterface
     use HasEventEmitterTrait;
 
     /**
-     * @var IO\WorkerPool
+     * @var IO\WorkerPoolInterface
      */
     protected $pool;
 
@@ -52,7 +52,7 @@ class StreamSelectRunner implements RunnerInterface
     /**
      * Listen for suite loading events and run those suites concurrently.
      *
-     * @param TestResult $resut
+     * @param TestResult $result
      * @return void
      */
     public function run(TestResult $result)
@@ -90,7 +90,7 @@ class StreamSelectRunner implements RunnerInterface
     /**
      * Delegate test.passed message event to a Peridot TestResult.
      *
-     * @param Test $suite
+     * @param Test $test
      * @return void
      */
     public function onTestPassed(Test $test)
@@ -101,7 +101,7 @@ class StreamSelectRunner implements RunnerInterface
     /**
      * Delegate test.failed message event to a Peridot TestResult.
      *
-     * @param Test $suite
+     * @param Test $test
      * @param $exception - an exception like object
      * @return void
      */
@@ -113,7 +113,7 @@ class StreamSelectRunner implements RunnerInterface
     /**
      * Delegate test.pending message event to a Peridot TestResult.
      *
-     * @param Test $suite
+     * @param Test $test
      * @return void
      */
     public function onTestPending(Test $test)
@@ -147,12 +147,12 @@ class StreamSelectRunner implements RunnerInterface
     /**
      * Listen for start of workers.
      *
-     * @param array $workers
+     * @param WorkerPoolInterface $pool
      */
     public function onWorkersStart(WorkerPoolInterface $pool)
     {
         $workers = $pool->getWorkers();
-        $count = sizeof($workers);
+        $count = count($workers);
         $this->eventEmitter->emit('peridot.concurrency.stream-select.start', [$count]);
     }
 

@@ -55,7 +55,6 @@ class Application
      * Run the application.
      *
      * @param TestMessage $message
-     * @param ReaderInterface $reader
      */
     public function run(TestMessage $message)
     {

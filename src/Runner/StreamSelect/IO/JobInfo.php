@@ -26,7 +26,6 @@ class JobInfo
 
     /**
      * @param $file
-     * @param \DateTime $start
      */
     public function __construct($file)
     {

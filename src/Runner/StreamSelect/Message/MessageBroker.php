@@ -8,7 +8,7 @@ class MessageBroker
     use EventEmitterTrait;
 
     /**
-     * @var array
+     * @var \SplObjectStorage
      */
     protected $messages;
 

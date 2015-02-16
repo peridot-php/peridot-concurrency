@@ -194,7 +194,7 @@ class TestMessage extends Message
      *
      * @param string $testMessage
      * @throws \RuntimeException
-     * @return array
+     * @return array|null
      */
     private function unpackMessage($testMessage)
     {
@@ -236,7 +236,7 @@ class TestMessage extends Message
     {
         $unpacked = $this->unpackMessage($testMessage);
 
-        if (! $unpacked) {
+        if (empty($unpacked)) {
             return;
         }
 

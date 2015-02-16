@@ -166,7 +166,7 @@ class Message extends EventEmitter
      */
     public function getStringPacker()
     {
-        if (is_null($this->stringPacker)) {
+        if ($this->stringPacker === null) {
             $packer = new StringPacker();
             $this->stringPacker = $packer;
         }

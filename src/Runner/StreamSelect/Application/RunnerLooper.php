@@ -49,7 +49,7 @@ class RunnerLooper implements LooperInterface
     {
         $message = trim($input);
         $parts = explode(':', $message);
-        $index = sizeof($parts) - 1;
+        $index = count($parts) - 1;
         $token = $parts[$index];
         $path = implode(':', array_slice($parts, 0, $index));
         return [$token, $path];
