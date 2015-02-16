@@ -17,3 +17,6 @@ install:
 
 script:
   - vendor/bin/peridot specs/ --concurrent -p 4
+
+after_script:
+  - php vendor/bin/coveralls

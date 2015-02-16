@@ -27,6 +27,7 @@ return function (EventEmitterInterface $emitter) {
      ***********************************************/
     $coverageType = getenv('CODE_COVERAGE');
     $coverage = new \PHP_CodeCoverage();
+    $hhvm = defined('HHVM_VERSION'); //exclude coverage from hhvm because its pretty flawed at the moment
 
     /**
      * Execute a function if a concurrency token is
@@ -35,9 +36,9 @@ return function (EventEmitterInterface $emitter) {
      *
      * @param callable $func
      */
-    $covered = function (callable $func) use ($coverageType, $coverage) {
+    $covered = function (callable $func) use ($coverageType, $coverage, $hhvm) {
         $token = getenv('PERIDOT_TEST_TOKEN'); //this is only present in a concurrent context
-        if ($coverageType && $token) {
+        if ($coverageType && $token && !$hhvm) {
             $func($token, $coverage);
         }
     };
@@ -80,8 +81,8 @@ return function (EventEmitterInterface $emitter) {
      * When peridot ends in the main process, we aggregate all of our code coverage
      * results.
      */
-    $emitter->on('peridot.end', function () use ($coverageType, $coverageFiles) {
-        if (! $coverageType) {
+    $emitter->on('peridot.end', function () use ($coverageType, $coverageFiles, $hhvm) {
+        if (! $coverageType || $hhvm) {
             return;
         }
 
