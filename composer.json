@@ -15,7 +15,7 @@
         "peridot-php/leo": "~1.3.0",
         "peridot-php/peridot-prophecy-plugin": "~1.1",
         "peridot-php/peridot-dot-reporter": "~1.0",
-        "peridot-php/peridot-code-coverage-reporters": "~1.0"
+        "phpunit/php-code-coverage": "~2.0"
     },
     "autoload": {
         "psr-4": {
