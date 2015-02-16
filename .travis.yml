@@ -16,7 +16,7 @@ install:
   - composer install --prefer-source
 
 script:
-  - vendor/bin/peridot specs/ --concurrent -p 4
+  - CODE_COVERAGE=clover vendor/bin/peridot specs/ --concurrent -p 4
 
 after_script:
   - php vendor/bin/coveralls
