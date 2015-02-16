@@ -84,6 +84,18 @@ describe('WorkerPool', function () {
             expect($error)->to->equal('catastrophe!');
             expect($worker)->to->equal($this->worker);
         });
+
+        it('should do nothing if a worker is not found', function () {
+            $emitted = false;
+            $this->emitter->on('peridot.concurrency.worker.error', function () use (&$emitted) {
+                $emitted = true;
+            });
+            $tmpfile = tmpfile();
+            $message = new Message($tmpfile);
+            $this->broker->emit('error', ['catastrophe!', $message]);
+            expect($emitted)->to->be->false;
+            fclose($tmpfile);
+        });
     });
 
     describe('->getMessageBroker()', function () {
