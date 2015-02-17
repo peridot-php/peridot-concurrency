@@ -55,6 +55,7 @@ class Application
      * Run the application.
      *
      * @param TestMessage $message
+     * @return void
      */
     public function run(TestMessage $message)
     {
@@ -69,6 +70,7 @@ class Application
      * Write a suite.start event on the message.
      *
      * @param Suite $suite
+     * @return void
      */
     public function onSuiteStart(Suite $suite)
     {
@@ -86,6 +88,7 @@ class Application
      * Write a suite.end event on the message.
      *
      * @param Suite $suite
+     * @return void
      */
     public function onSuiteEnd(Suite $suite)
     {
@@ -103,6 +106,7 @@ class Application
      * Write a test.passed event on the message.
      *
      * @param Test $test
+     * @return void
      */
     public function onTestPassed(Test $test)
     {
@@ -118,6 +122,7 @@ class Application
      *
      * @param Test $test
      * @param $exception
+     * @return void
      */
     public function onTestFailed(Test $test, $exception)
     {
@@ -133,6 +138,7 @@ class Application
      * Write a test.pending event on the message.
      *
      * @param Test $test
+     * @return void
      */
     public function onTestPending(Test $test)
     {
@@ -143,6 +149,11 @@ class Application
             ->write();
     }
 
+    /**
+     * Write a suite.halt event on the message.
+     *
+     * @return void
+     */
     public function onSuiteHalt()
     {
         $this->message
@@ -154,6 +165,7 @@ class Application
      * Listen for message events.
      *
      * @param EventEmitterInterface $emitter
+     * @return void
      */
     protected function listen(EventEmitterInterface $emitter)
     {

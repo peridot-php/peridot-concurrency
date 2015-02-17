@@ -1,6 +1,11 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect\Model;
 
+/**
+ * Exception models an actual PHP Exception.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect\Model
+ */
 class Exception
 {
     private $message;
@@ -24,6 +29,8 @@ class Exception
     }
 
     /**
+     * Set the exception trace as a string.
+     *
      * @param $trace
      * @return $this
      */
@@ -34,6 +41,8 @@ class Exception
     }
 
     /**
+     * Get the exception trace as a tring.
+     *
      * @return string
      */
     public function getTraceAsString()
@@ -42,6 +51,8 @@ class Exception
     }
 
     /**
+     * Get the exception message.
+     *
      * @return string
      */
     public function getMessage()
@@ -50,6 +61,8 @@ class Exception
     }
 
     /**
+     * Set the exception type.
+     *
      * @param string $type
      * @return $this
      */
@@ -60,6 +73,8 @@ class Exception
     }
 
     /**
+     * Return the exception type.
+     *
      * @return string
      */
     public function getType()

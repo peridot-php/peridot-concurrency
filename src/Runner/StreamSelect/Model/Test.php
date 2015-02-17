@@ -3,6 +3,11 @@ namespace Peridot\Concurrency\Runner\StreamSelect\Model;
 
 use Peridot\Core\Test as CoreTest;
 
+/**
+ * Test models the core Peridot Test, but allows the title to be set.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect\Model
+ */
 class Test extends CoreTest
 {
     /**

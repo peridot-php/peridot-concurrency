@@ -3,10 +3,15 @@ namespace Peridot\Concurrency\Reporter;
 
 use Peridot\Concurrency\Runner\StreamSelect\IO\Worker;
 use Peridot\Core\AbstractTest;
-use Peridot\Core\Suite;
 use Peridot\Core\Test;
 use Peridot\Reporter\AbstractBaseReporter;
 
+/**
+ * The ConcurrentReporter organizes tests by the file they were run in
+ * and the time it took each file to run.
+ *
+ * @package Peridot\Concurrency\Reporter
+ */
 class ConcurrentReporter extends AbstractBaseReporter
 {
     /**
@@ -49,6 +54,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Outputs the number of worker processes being used.
      *
      * @param $numWorkers
+     * @return void
      */
     public function onStreamSelectStart($numWorkers)
     {
@@ -67,6 +73,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Track a passing test.
      *
      * @param Test $test
+     * @return void
      */
     public function onTestPassed(Test $test)
     {
@@ -78,6 +85,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      *
      * @param Test $test
      * @param $exception
+     * @return void
      */
     public function onTestFailed(Test $test, $exception)
     {
@@ -88,6 +96,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Track a pending test.
      *
      * @param Test $test
+     * @return void
      */
     public function onTestPending(Test $test)
     {
@@ -98,6 +107,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Track the time it took a worker to complete.
      *
      * @param Worker $worker
+     * @return void
      */
     public function onWorkerCompleted(Worker $worker)
     {
@@ -114,6 +124,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Writes a test message to output.
      *
      * @param array $tests
+     * @return void
      */
     public function writeTestReport(array $tests)
     {
@@ -136,6 +147,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      *
      * @param string $path
      * @param bool $failed
+     * @return void
      */
     public function writeTestHeader($path, $failed)
     {
@@ -153,6 +165,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Write test failures if any.
      *
      * @param array $tests
+     * @return void
      */
     public function writeTestFailures(array $tests)
     {
@@ -174,6 +187,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * they will be dumped here.
      *
      * @param array $errors
+     * @return void
      */
     public function onConcurrentRunnerEnd($errors)
     {
@@ -196,6 +210,8 @@ class ConcurrentReporter extends AbstractBaseReporter
 
     /**
      * Write a count of failing and passing tests.
+     *
+     * @return void
      */
     public function footer()
     {
@@ -270,6 +286,9 @@ class ConcurrentReporter extends AbstractBaseReporter
     }
 
     /**
+     * Given an array of test objects, determine if they
+     * represent a failed suite.
+     *
      * @param array $tests
      * @return bool
      */
@@ -313,6 +332,7 @@ class ConcurrentReporter extends AbstractBaseReporter
      * Output the collection of errors.
      *
      * @param $errors
+     * @return void
      */
     protected function outputErrors($errors)
     {

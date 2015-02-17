@@ -4,6 +4,12 @@ namespace Peridot\Concurrency\Environment;
 use Evenement\EventEmitterInterface;
 use Peridot\Configuration;
 
+/**
+ * The Environment contains configuration and stream information
+ * for concurrency operations.
+ *
+ * @package Peridot\Concurrency\Environment
+ */
 class Environment
 {
     /**

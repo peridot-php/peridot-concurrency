@@ -4,7 +4,8 @@ namespace Peridot\Concurrency\Environment;
 use Peridot\Configuration;
 
 /**
- * Reader reads peridot environment information.
+ * Reader reads Peridot environment information into a usable
+ * Configuration object.
  *
  * @package Peridot\Concurrency\Environment
  */

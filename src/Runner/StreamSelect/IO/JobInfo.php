@@ -1,6 +1,11 @@
 <?php
 namespace Peridot\Concurrency\Runner\StreamSelect\IO;
 
+/**
+ * JobInfo contains information about the last job run by a worker.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect\IO
+ */
 class JobInfo
 {
     /**

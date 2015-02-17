@@ -7,6 +7,11 @@ use Peridot\Core\TestResult;
 use Peridot\Runner\Context;
 use Peridot\Runner\Runner;
 
+/**
+ * The RunnerLooper serves as the main application loop of StreamSelect\Application\Application.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect\Application
+ */
 class RunnerLooper implements LooperInterface
 {
     /**
@@ -16,6 +21,7 @@ class RunnerLooper implements LooperInterface
      * @param Context $context
      * @param Environment $environment
      * @param Message $message
+     * @return void
      */
     public function loop(Context $context, Environment $environment, Message $message)
     {

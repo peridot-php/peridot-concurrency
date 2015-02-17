@@ -125,6 +125,7 @@ class StreamSelectRunner implements RunnerInterface
      * Handle errors.
      *
      * @param $data
+     * @return void
      */
     public function onError($error, WorkerInterface $worker)
     {
@@ -148,6 +149,7 @@ class StreamSelectRunner implements RunnerInterface
      * Listen for start of workers.
      *
      * @param WorkerPoolInterface $pool
+     * @return void
      */
     public function onWorkersStart(WorkerPoolInterface $pool)
     {

@@ -4,8 +4,9 @@ namespace Peridot\Concurrency\Runner\StreamSelect\Message;
 use Evenement\EventEmitter;
 
 /**
- * A ReadableMessage is meant to receive
- * data from a stream.
+ * A Message represents either a readable or writable stream. A message
+ * is responsible for reading data of a given structure and emitting relevant events
+ * as data becomes available.
  *
  * @package Peridot\Concurrency\Runner\StreamSelect\Message
  */
@@ -84,6 +85,7 @@ class Message extends EventEmitter
      * Write content to the stream.
      *
      * @param string $content
+     * @return void
      */
     public function write($content)
     {
@@ -102,6 +104,7 @@ class Message extends EventEmitter
      * determine what the end signal is.
      *
      * @param $content
+     * @return void
      */
     public function end($content = '')
     {
@@ -142,6 +145,8 @@ class Message extends EventEmitter
     }
 
     /**
+     * Return whether or not the message is a writable message.
+     *
      * @return bool
      */
     public function isWritable()
@@ -189,6 +194,7 @@ class Message extends EventEmitter
      * Set the MessageBroker this message belongs to.
      *
      * @param MessageBroker $broker
+     * @return void
      */
     public function setMessageBroker(MessageBroker $broker)
     {
@@ -211,6 +217,7 @@ class Message extends EventEmitter
      *
      * @param $event
      * @param array $arguments
+     * @return void
      */
     public function emit($event, array $arguments = [])
     {

@@ -7,8 +7,8 @@ use Evenement\EventEmitterInterface;
 
 /**
  * An event driven version of the core SuiteLoader. Rather than include
- * globbed tests, this SuiteLoader emits an event with the suite path
- * when the suite is found.
+ * globbed tests, it emits an event with the paths so they can be included
+ * in separate processes.
  *
  * @package Peridot\Concurrency
  */

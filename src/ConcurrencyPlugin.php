@@ -13,6 +13,11 @@ use Peridot\Reporter\ReporterFactory;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 
+/**
+ * ConcurrencyPlugin provides a reporter and runners to run test suites concurrently.
+ *
+ * @package Peridot\Concurrency
+ */
 class ConcurrencyPlugin
 {
     /**
@@ -49,7 +54,7 @@ class ConcurrencyPlugin
     }
 
     /**
-     * Registers a --concurrent option with peridot
+     * Registers a --concurrent option with Peridot
      *
      * @param Environment $env
      * @return void
@@ -62,7 +67,8 @@ class ConcurrencyPlugin
     }
 
     /**
-     * Stores a reference to the peridot input interface.
+     * Stores a reference to the Peridot input interface.
+     *
      * @return void
      */
     public function onPeridotExecute(InputInterface $input)
@@ -71,8 +77,9 @@ class ConcurrencyPlugin
     }
 
     /**
-     * Configures peridot to use Peridot\Concurrency\SuiteLoader
-     * if the concurrent option is set.
+     * Configures Peridot to use Peridot\Concurrency\SuiteLoader
+     * if the concurrent option is set. This plugin forces the use of the concurrent reporter
+     * to ensure consistent and readable results.
      *
      * @return void
      */
@@ -97,6 +104,7 @@ class ConcurrencyPlugin
      *
      * @param Configuration $configuration
      * @param Application $application
+     * @return void
      */
     public function onPeridotConfigure(CoreConfiguration $configuration, Application $application)
     {
@@ -109,6 +117,7 @@ class ConcurrencyPlugin
      *
      * @param InputInterface $input
      * @param ReporterFactory $reporters
+     * @return void
      */
     public function onPeridotReporters(InputInterface $input, ReporterFactory $reporters)
     {
@@ -160,7 +169,8 @@ class ConcurrencyPlugin
     }
 
     /**
-     * Configure the peridot command for concurrency.
+     * Configure the Peridot command for concurrency. Sets the runner to a concurrency runner,
+     * and sets the suite loader to a concurrency suite loader.
      *
      * @param Command $command
      * @return void

@@ -8,6 +8,11 @@ use Peridot\Concurrency\Runner\StreamSelect\Model\Test;
 use Peridot\Core\Test as CoreTest;
 use Peridot\Core\AbstractTest;
 
+/**
+ * TestMessage writes and reads messages containing Peridot test events.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect\Message
+ */
 class TestMessage extends Message
 {
     /**
@@ -123,6 +128,7 @@ class TestMessage extends Message
      * be used instead of the internal serialized data structure.
      *
      * @param string $content
+     * @return void
      */
     public function write($content = '')
     {
@@ -231,6 +237,7 @@ class TestMessage extends Message
      * data it will be marshaled into an Exception model.
      *
      * @param string $testMessage
+     * @return void
      */
     private function emitTest($testMessage)
     {

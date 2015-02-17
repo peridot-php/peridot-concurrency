@@ -3,6 +3,13 @@ namespace Peridot\Concurrency;
 
 use Peridot\Configuration as CoreConfiguration;
 
+/**
+ * Configuration wraps the core Peridot Configuration object. It provides accessors
+ * to the configured process count, and delegates all other configuration requests to
+ * the wrapped configuration object.
+ *
+ * @package Peridot\Concurrency
+ */
 class Configuration
 {
     /**
@@ -52,6 +59,7 @@ class Configuration
      *
      * @param string $methodName
      * @param array $args
+     * @return mixed
      */
     public function __call($methodName, $args)
     {

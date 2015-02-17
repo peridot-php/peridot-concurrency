@@ -3,6 +3,12 @@ namespace Peridot\Concurrency\Runner\StreamSelect\Model;
 
 use Peridot\Core\Suite as CoreSuite;
 
+/**
+ * Suite models the core Peridot suite, but allows the title of the test
+ * to be set.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect\Model
+ */
 class Suite extends CoreSuite
 {
     /**

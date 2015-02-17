@@ -3,6 +3,12 @@ namespace Peridot\Concurrency\Runner\StreamSelect\Message;
 
 use Evenement\EventEmitterTrait;
 
+/**
+ * The MessageBroker coordinates the events of multiple messages. Message events
+ * bubble up to the broker.
+ *
+ * @package Peridot\Concurrency\Runner\StreamSelect\Message
+ */
 class MessageBroker
 {
     use EventEmitterTrait;
@@ -24,6 +30,7 @@ class MessageBroker
      * Add a message to the broker.
      *
      * @param Message $message
+     * @return void
      */
     public function addMessage(Message $message)
     {
@@ -94,6 +101,7 @@ class MessageBroker
      *
      * @param Message $message
      * @param resource $resource
+     * @return void
      */
     protected function readResource(Message $message, $resource)
     {
