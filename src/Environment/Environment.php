@@ -3,6 +3,7 @@ namespace Peridot\Concurrency\Environment;
 
 use Evenement\EventEmitterInterface;
 use Peridot\Configuration;
+use Peridot\Runner\Context;
 
 /**
  * The Environment contains configuration and stream information
@@ -40,6 +41,7 @@ class Environment
         $this->emitter = $emitter;
         $this->readStream = $readStream;
         $this->writeStream = $writeStream;
+        $this->initializeContext($this->emitter);
     }
 
     /**
@@ -96,5 +98,15 @@ class Environment
     public function getConfiguration()
     {
         return $this->configuration;
+    }
+
+    /**
+     * Initialize the Context with the same EventEmitter as the Environment.
+     *
+     * @return void
+     */
+    protected function initializeContext(EventEmitterInterface $emitter)
+    {
+        Context::getInstance()->setEventEmitter($emitter);
     }
 }
